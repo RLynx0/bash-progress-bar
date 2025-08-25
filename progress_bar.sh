@@ -17,6 +17,18 @@ EMPTYCHR='-'
 # BEGINSTR='PROGRESS :▕'
 # CLOSESTR='▏::'
 
+
+pb_last_cols=''
+pb_last_color=''
+pb_last_bar_perc=''
+pb_last_status_text=''
+function pb_reset-vars {
+  pb_last_cols=''
+  pb_last_color=''
+  pb_last_bar_perc=''
+  pb_last_status_text=''
+}
+
 function hexlerp {
   local a="$1"; local b="$2"; local step="$3"; local steps="$4"
   echo "$((16#${a} + (16#${b} - 16#${a}) * step / steps))"
@@ -47,7 +59,10 @@ function pb_get-color {
     b="$(hexlerp "${c0:4:2}" "${c1:4:2}" "$lerp_val" "$last")"
   fi
 
-  echo "\033[38;2;${r};${g};${b}m"
+  local color="\033[38;2;${r};${g};${b}m"
+  [ "$color" == "$pb_last_color" ] && echo '' && return
+  pb_last_color="$color"
+  echo "$color"
 }
 
 function pb_get-status-text {
@@ -62,15 +77,6 @@ function pb_get-status-text {
   text="${text//\{perc\}/$perc}"
 
   echo "$text"
-}
-
-pb_last_cols=''
-pb_last_bar_perc=''
-pb_last_status_text=''
-function pb_reset-vars {
-  pb_last_cols=''
-  pb_last_bar_perc=''
-  pb_last_status_text=''
 }
 
 # Returns ANSII code to move cursor left or right
@@ -92,7 +98,7 @@ function pb_print-bar {
   [ "$done" -gt "$todo" ] && done="$todo"
 
   # Get terminal space and reserved area length
-  local cols="${COLUMNS:-$(tput cols)}"
+  local cols="$(tput cols)"
   local status_text="$(pb_get-status-text "$done" "$todo")"
   local final_status="$(pb_get-status-text "$todo" "$todo")"
   local reserved="$((${#BEGINSTR} + ${#CLOSESTR} + ${#final_status}))"
