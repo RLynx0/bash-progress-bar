@@ -124,17 +124,26 @@ function pb_print-bar {
   # Choose draw mode
   local draw_to_bar=''
   local full_redraw=''
+  local draw_empty_to='0'
   if [ "$pb_last_cols" != "$cols" ]; then
     # Terminal window changed -> Redraw everything
+    draw_empty_to="$available"
     pb_last_cols="$cols"
     pb_last_bar_perc='0'
     draw_to_bar='1'
     full_redraw='1'
-  elif [ "$pb_last_bar_perc" != "$bar_perc" ]; then
+  elif [ "$pb_last_bar_perc" -lt "$bar_perc" ]; then
     # Only progress changed -> Add new bar-characters
     # Calculate cursor offset to overwrite only the changed section
     ma="$((ma - ${#CLOSESTR} - available + (pb_last_bar_perc / bfactor)))"
     mc="$((mc + (full_bar - bar_perc) / bfactor + ${#CLOSESTR}))"
+    draw_to_bar='1'
+  elif [ "$pb_last_bar_perc" -gt "$bar_perc" ]; then
+    # SOMETHING SOMETHING TODO
+    ma="$((ma - ${#CLOSESTR} - available + (bar_perc / bfactor)))"
+    draw_empty_to="$(((pb_last_bar_perc + bfactor - 1) / bfactor))"
+    mc="$((mc + available - draw_empty_to + ${#CLOSESTR}))"
+    pb_last_bar_perc="$bar_perc"
     draw_to_bar='1'
   fi
 
@@ -166,12 +175,10 @@ function pb_print-bar {
     # Reset color
     b+="\033[0m"
 
-    # Pad with empty characters if fully redrawing
-    if [ -n "$full_redraw" ]; then
-      for ((; i < available; i++)); do
-        b+="$EMPTYCHR"
-      done
-    fi
+    # Pad with empty characters
+    for ((; i < draw_empty_to; i++)); do
+      b+="$EMPTYCHR"
+    done
   fi
 
   # Save current state for next update
