@@ -1,6 +1,6 @@
 #!/bin/bash
 
-STATUS_FORMAT=' {done}/{todo} ({perc}%)'
+STATUS_FORMAT=' {perc}%'
 GRADIENT=('60C0C0' 'C080D8')
 BARCHARS=('>' '%' '#')
 BEGINSTR='['
@@ -11,10 +11,11 @@ EMPTYCHR='-'
 # COOLER SETTINGS #
 ###################
 
-GRADIENT=('CC2222' 'CCCC22' '22CC22' '22CCCC' '2222CC' 'CC22CC')
-BARCHARS=('▏' '▎' '▍' '▌' '▋' '▊' '▉' '█')
-BEGINSTR='PROGRESS :▕'
-CLOSESTR='▏::'
+# STATUS_FORMAT=' {done}/{todo} ({perc}%)'
+# GRADIENT=('CC2222' 'CCCC22' '22CC22' '22CCCC' '2222CC' 'CC22CC')
+# BARCHARS=('▏' '▎' '▍' '▌' '▋' '▊' '▉' '█')
+# BEGINSTR='PROGRESS :▕'
+# CLOSESTR='▏::'
  
 function hexlerp {
   local a="$1"; local b="$2"; local step="$3"; local steps="$4"
@@ -73,9 +74,10 @@ function pb_reset-vars {
 # Returns ANSII code to move cursor left or right
 function pb_move {
   m="$1"
-  [ "$m" -eq 0 ] && echo ''
-  [ "$m" -gt 0 ] && echo "\033[${m}C"
-  [ "$m" -lt 0 ] && echo "\033[$((0 - m))D"
+  if   [ "$m" -eq 0 ]; then echo ''
+  elif [ "$m" -gt 0 ]; then echo "\033[${m}C"
+  elif [ "$m" -lt 0 ]; then echo "\033[$((0 - m))D"
+  fi
 }
 
 function pb_print-bar {
@@ -175,8 +177,4 @@ function demo_numbers {
   done
 }
 
-demo_total=500
-stty -echo -icanon
-demo_numbers "$demo_total" \
-| pb_animate-progress-bar "$demo_total"
-s
+pb_animate-progress-bar "$1"
