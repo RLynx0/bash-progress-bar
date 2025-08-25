@@ -207,7 +207,7 @@ function demo {
   stty -echo -icanon
   for ((n = 0; n <= total; n++)); do
     echo "$n"
-  done | pb_animate-progress-bar "$total"
+  done | COLUMNS='' pb_animate-progress-bar "$total"
   stty sane; echo
 }
 
