@@ -8,9 +8,14 @@ CLOSESTR=']'
 EMPTYCHR='-'
 
 ###################
+# FASTER SETTINGS #
+###################
+# BARCHARS=('#')
+# GRADIENT=()
+
+###################
 # COOLER SETTINGS #
 ###################
-
 # STATUS_FORMAT=' {done}/{todo} ({perc}%)'
 # GRADIENT=('CC2222' 'CCCC22' '22CC22' '22CCCC' '2222CC' 'CC22CC')
 # BARCHARS=('▏' '▎' '▍' '▌' '▋' '▊' '▉' '█')
