@@ -24,11 +24,13 @@ function hexlerp {
 function pb_get-color {
   local cur="$(($1 - 1))"
   local last="$(($2 - 1))"
+  local n_colors="${#GRADIENT[@]}"
+  [ "$n_colors" -eq 0 ] && echo '' && return
 
-  local grad_full_i="$((cur * (${#GRADIENT[@]} - 1)))"
+  local grad_full_i="$((cur * (n_colors - 1)))"
   local lerp_val="$((grad_full_i % last))"
-  local i="$((grad_full_i / last))"
-  local j="$((i + 1))"
+  local i="$(((grad_full_i / last) % n_colors))"
+  local j="$(((i + 1) % n_colors))"
 
   local c0; local c1
   local r; local g; local b
@@ -182,11 +184,13 @@ function pb_animate-progress-bar {
   done; echo
 }
 
-function demo_numbers {
-  total="$1"
+function demo {
+  total="${1:-250}"
+  stty -echo -icanon
   for ((n = 0; n <= total; n++)); do
     echo "$n"
-  done
+  done | pb_animate-progress-bar "$total"
+  stty sane; echo
 }
 
-pb_animate-progress-bar "$1"
+demo "$1"
