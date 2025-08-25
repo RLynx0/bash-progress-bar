@@ -125,6 +125,12 @@ function pb_print-bar {
   local bar_perc="$((done * full_bar / todo))"
   local sub_i="$((bar_perc % bfactor))"
 
+  # Return early if nothing changed
+  [ "$cols" == "$pb_last_cols" ] \
+  && [ "$bar_perc" == "$pb_last_bar_perc" ] \
+  && [ "$status_text" == "$pb_last_status_text" ] \
+  && return
+  
   # Work variables
   local i; local a; local b; local c
   local ma="-${#pb_last_status_text}"
