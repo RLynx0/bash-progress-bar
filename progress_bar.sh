@@ -16,7 +16,7 @@ EMPTYCHR='-'
 # BARCHARS=('▏' '▎' '▍' '▌' '▋' '▊' '▉' '█')
 # BEGINSTR='PROGRESS :▕'
 # CLOSESTR='▏::'
- 
+
 function hexlerp {
   local a="$1"; local b="$2"; local step="$3"; local steps="$4"
   echo "$((16#${a} + (16#${b} - 16#${a}) * step / steps))"
@@ -44,7 +44,7 @@ function pb_get-color {
     g="$(hexlerp "${c0:2:2}" "${c1:2:2}" "$lerp_val" "$last")"
     b="$(hexlerp "${c0:4:2}" "${c1:4:2}" "$lerp_val" "$last")"
   fi
-  
+
   echo "\033[38;2;${r};${g};${b}m"
 }
 
@@ -83,14 +83,25 @@ function pb_move {
 function pb_print-bar {
   local done="$1"
   local todo="$2"
-  local cols="$(tput cols)"
-  [ -n "$WIDTHPERC" ] && cols=$((cols * WIDTHPERC / 100))
-  [ -n "$MAXWIDTH" ] && [ "$cols" -gt "$MAXWIDTH" ] && cols="$MAXWIDTH"
 
-  local bfactor="${#BARCHARS[@]}"
+  # Sanity checks
+  [ "$todo" -le 0 ] && todo='1'
+  [ "$done" -lt 0 ] && done='0'
+  [ "$done" -gt "$todo" ] && done="$todo"
+
+  # Get terminal space and reserved area length
+  local cols="$(tput cols)"
   local status_text="$(pb_get-status-text "$done" "$todo")"
   local final_status="$(pb_get-status-text "$todo" "$todo")"
   local reserved="$((${#BEGINSTR} + ${#CLOSESTR} + ${#final_status}))"
+
+  # Scale cols to width-perc and max-width
+  [ -n "$WIDTHPERC" ] && [ "$WIDTHPERC" -le 100 ] && cols=$((cols * WIDTHPERC / 100))
+  [ -n "$MAXWIDTH" ] && [ "$cols" -gt "$MAXWIDTH" ] && cols="$MAXWIDTH"
+  [ "$cols" -lt "$reserved" ] && cols="$reserved"
+  
+  # Variables related to the actual bar
+  local bfactor="${#BARCHARS[@]}"
   local available="$((cols - reserved))"
   local full_bar="$((available * bfactor))"
   local bar_perc="$((done * full_bar / todo))"
@@ -102,6 +113,7 @@ function pb_print-bar {
   local mc='0'
   local color
 
+  # Choose draw mode
   local draw_to_bar=''
   local full_redraw=''
   if [ "$pb_last_cols" != "$cols" ]; then
