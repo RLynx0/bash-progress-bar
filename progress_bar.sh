@@ -107,7 +107,12 @@ function pb_print-bar {
   [ -n "$WIDTHPERC" ] && [ "$WIDTHPERC" -le 100 ] && cols=$((cols * WIDTHPERC / 100))
   [ -n "$MAXWIDTH" ] && [ "$cols" -gt "$MAXWIDTH" ] && cols="$MAXWIDTH"
   [ "$cols" -lt "$reserved" ] && cols="$reserved"
-  
+
+  # Pad out status_text to overwrite longer old one
+  while [ "${#status_text}" -lt "${#pb_last_status_text}" ]; do
+    status_text+=" "
+  done
+
   # Variables related to the actual bar
   local bfactor="${#BARCHARS[@]}"
   local available="$((cols - reserved))"
@@ -139,7 +144,7 @@ function pb_print-bar {
     mc="$((mc + (full_bar - bar_perc) / bfactor + ${#CLOSESTR}))"
     draw_to_bar='1'
   elif [ "$pb_last_bar_perc" -gt "$bar_perc" ]; then
-    # SOMETHING SOMETHING TODO
+    # Redraw bar section cleanly
     ma="$((ma - ${#CLOSESTR} - available + (bar_perc / bfactor)))"
     draw_empty_to="$(((pb_last_bar_perc + bfactor - 1) / bfactor))"
     mc="$((mc + available - draw_empty_to + ${#CLOSESTR}))"
