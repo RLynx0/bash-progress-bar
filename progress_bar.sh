@@ -90,7 +90,7 @@ function pb_print-bar {
   [ "$done" -gt "$todo" ] && done="$todo"
 
   # Get terminal space and reserved area length
-  local cols="$(tput cols)"
+  local cols="${COLUMNS:-$(tput cols)}"
   local status_text="$(pb_get-status-text "$done" "$todo")"
   local final_status="$(pb_get-status-text "$todo" "$todo")"
   local reserved="$((${#BEGINSTR} + ${#CLOSESTR} + ${#final_status}))"
