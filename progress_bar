@@ -27,12 +27,6 @@ pb_last_cols=''
 pb_last_color=''
 pb_last_bar_perc=''
 pb_last_status_text=''
-function pb_reset-vars {
-  pb_last_cols=''
-  pb_last_color=''
-  pb_last_bar_perc=''
-  pb_last_status_text=''
-}
 
 function hexlerp {
   local a="$1"; local b="$2"; local step="$3"; local steps="$4"
@@ -71,6 +65,13 @@ function pb_get-color {
   echo "$color"
 }
 
+function pb_reset-color {
+  local color="\033[0m"
+  [ "$color" == "$pb_last_color" ] && echo '' && return
+  pb_last_color="$color"
+  echo "$color"
+}
+
 function pb_get-status-text {
   local done="$1"
   local todo="$2"
@@ -97,6 +98,11 @@ function pb_move {
 function pb_print-bar {
   local done="$1"
   local todo="$2"
+
+  # Return early depending on interval
+  [ "$((done % INTERVAL))" -eq 0 ] \
+  || [ "$done" -eq "$todo" ] \
+  || return
 
   # Sanity checks
   [ "$todo" -le 0 ] && todo='1'
@@ -190,7 +196,7 @@ function pb_print-bar {
     fi
 
     # Reset color
-    b+="\033[0m"
+    b+="$(pb_reset-color)"
 
     # Pad with empty characters
     for ((; i < draw_empty_to; i++)); do
@@ -208,7 +214,6 @@ function pb_print-bar {
 
 function pb_animate-progress-bar {
   total="$1"
-  pb_reset-vars
   while read n; do
     pb_print-bar "$n" "$total"
   done; echo
