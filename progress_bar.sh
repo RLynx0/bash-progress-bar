@@ -1,27 +1,27 @@
 #!/bin/bash
 
-STATUS_FORMAT=' {perc}%'
-GRADIENT=('60C0C0' 'C080D8')
-BARCHARS=('>' '%' '#')
-BEGINSTR='['
-CLOSESTR=']'
-EMPTYCHR='-'
+DEFAULT__BAR='minimal'
+DEFAULT__EMPTY_CHAR=' '
+DEFAULT__COLORS='none'
+DEFAULT__BAR_START='['
+DEFAULT__BAR_END='] '
+DEFAULT__STATUS_FORMAT='{perc}%'
+DEFAULT__WIDTH_PERCENT='100'
+DEFAULT__MAX_WIDTH=''
+DEFAULT__INTERVAL='1'
 
-###################
-# FASTER SETTINGS #
-###################
-# BARCHARS=('#')
-# GRADIENT=()
+BAR="${BAR:-"$DEFAULT__BAR"}"
+EMPTY_CHAR="${EMPTY_CHAR:-"$DEFAULT__EMPTY_CHAR"}"
+COLORS="${COLORS:-"$DEFAULT__COLORS"}"
+BAR_START="${BAR_START:-"$DEFAULT__BAR_START"}"
+BAR_END="${BAR_END:-"$DEFAULT__BAR_END"}"
+STATUS_FORMAT="${STATUS_FORMAT:-"$DEFAULT__STATUS_FORMAT"}"
+WIDTH_PERCENT="${WIDTH_PERCENT:-"$DEFAULT__WIDTH_PERCENT"}"
+MAX_WIDTH="${MAX_WIDTH:-"$DEFAULT__MAX_WIDTH"}"
+INTERVAL="${INTERVAL:-"$DEFAULT__INTERVAL"}"
 
-###################
-# COOLER SETTINGS #
-###################
-# STATUS_FORMAT=' {done}/{todo} ({perc}%)'
-# GRADIENT=('CC2222' 'CCCC22' '22CC22' '22CCCC' '2222CC' 'CC22CC')
-# BARCHARS=('▏' '▎' '▍' '▌' '▋' '▊' '▉' '█')
-# BEGINSTR='PROGRESS :▕'
-# CLOSESTR='▏::'
-
+BARCHARS=('#')
+GRADIENT=()
 
 pb_last_cols=''
 pb_last_color=''
@@ -38,6 +38,7 @@ function hexlerp {
   local a="$1"; local b="$2"; local step="$3"; local steps="$4"
   echo "$((16#${a} + (16#${b} - 16#${a}) * step / steps))"
 }
+
 function pb_get-color {
   local cur="$(($1 - 1))"
   local last="$(($2 - 1))"
@@ -106,11 +107,11 @@ function pb_print-bar {
   local cols="${COLUMNS:-$(tput cols)}"
   local status_text="$(pb_get-status-text "$done" "$todo")"
   local final_status="$(pb_get-status-text "$todo" "$todo")"
-  local reserved="$((${#BEGINSTR} + ${#CLOSESTR} + ${#final_status}))"
+  local reserved="$((${#BAR_START} + ${#BAR_END} + ${#final_status}))"
 
   # Scale cols to width-perc and max-width
-  [ -n "$WIDTHPERC" ] && [ "$WIDTHPERC" -le 100 ] && cols=$((cols * WIDTHPERC / 100))
-  [ -n "$MAXWIDTH" ] && [ "$cols" -gt "$MAXWIDTH" ] && cols="$MAXWIDTH"
+  [ "$WIDTH_PERCENT" -le 100 ] && cols=$((cols * WIDTH_PERCENT / 100))
+  [ -n "$MAX_WIDTH" ] && [ "$cols" -gt "$MAX_WIDTH" ] && cols="$MAX_WIDTH"
   [ "$cols" -lt "$reserved" ] && cols="$reserved"
 
   # Pad out status_text to overwrite longer old one
@@ -151,22 +152,22 @@ function pb_print-bar {
   elif [ "$pb_last_bar_perc" -lt "$bar_perc" ]; then
     # Only progress changed -> Add new bar-characters
     # Calculate cursor offset to overwrite only the changed section
-    ma="$((ma - ${#CLOSESTR} - available + (pb_last_bar_perc / bfactor)))"
-    mc="$((mc + (full_bar - bar_perc) / bfactor + ${#CLOSESTR}))"
+    ma="$((ma - ${#BAR_END} - available + (pb_last_bar_perc / bfactor)))"
+    mc="$((mc + (full_bar - bar_perc) / bfactor + ${#BAR_END}))"
     draw_to_bar='1'
   elif [ "$pb_last_bar_perc" -gt "$bar_perc" ]; then
     # Redraw bar section cleanly
-    ma="$((ma - ${#CLOSESTR} - available + (bar_perc / bfactor)))"
+    ma="$((ma - ${#BAR_END} - available + (bar_perc / bfactor)))"
     draw_empty_to="$(((pb_last_bar_perc + bfactor - 1) / bfactor))"
-    mc="$((mc + available - draw_empty_to + ${#CLOSESTR}))"
+    mc="$((mc + available - draw_empty_to + ${#BAR_END}))"
     pb_last_bar_perc="$bar_perc"
     draw_to_bar='1'
   fi
 
   if [ -n "$full_redraw" ]; then
     # Full redraw: Clear the line and draw all elements
-    a="\r\033[K${BEGINSTR}"
-    c="${CLOSESTR}"
+    a="\r\033[K${BAR_START}"
+    c="${BAR_END}"
   else
     # Incremental update: Just move cursor to the right places
     a="$(pb_move "$ma")"
@@ -193,7 +194,7 @@ function pb_print-bar {
 
     # Pad with empty characters
     for ((; i < draw_empty_to; i++)); do
-      b+="$EMPTYCHR"
+      b+="$EMPTY_CHAR"
     done
   fi
 
@@ -216,8 +217,7 @@ function pb_animate-progress-bar {
 function demo {
   total="${1:-250}"
   stty -echo -icanon
-  for ((n = 0; n <= total; n++)); do
-    echo "$n"
+  for ((n = 0; n <= total; n++)); do echo "$n"
   done | COLUMNS='' pb_animate-progress-bar "$total"
   stty sane; echo
 }
