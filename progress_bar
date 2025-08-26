@@ -6,7 +6,7 @@ DEFAULT__COLORS='none'
 DEFAULT__BAR_START='['
 DEFAULT__BAR_END='] '
 DEFAULT__STATUS_FORMAT='{perc}%'
-DEFAULT__WIDTH_PERCENT='100'
+DEFAULT__WIDTH='100'
 DEFAULT__MAX_WIDTH=''
 DEFAULT__INTERVAL='1'
 
@@ -16,7 +16,7 @@ COLORS="${COLORS:-"$DEFAULT__COLORS"}"
 BAR_START="${BAR_START:-"$DEFAULT__BAR_START"}"
 BAR_END="${BAR_END:-"$DEFAULT__BAR_END"}"
 STATUS_FORMAT="${STATUS_FORMAT:-"$DEFAULT__STATUS_FORMAT"}"
-WIDTH_PERCENT="${WIDTH_PERCENT:-"$DEFAULT__WIDTH_PERCENT"}"
+WIDTH="${WIDTH:-"$DEFAULT__WIDTH"}"
 MAX_WIDTH="${MAX_WIDTH:-"$DEFAULT__MAX_WIDTH"}"
 INTERVAL="${INTERVAL:-"$DEFAULT__INTERVAL"}"
 
@@ -110,7 +110,7 @@ function pb_print-bar {
   local reserved="$((${#BAR_START} + ${#BAR_END} + ${#final_status}))"
 
   # Scale cols to width-perc and max-width
-  [ "$WIDTH_PERCENT" -le 100 ] && cols=$((cols * WIDTH_PERCENT / 100))
+  [ "$WIDTH" -le 100 ] && cols=$((cols * WIDTH / 100))
   [ -n "$MAX_WIDTH" ] && [ "$cols" -gt "$MAX_WIDTH" ] && cols="$MAX_WIDTH"
   [ "$cols" -lt "$reserved" ] && cols="$reserved"
 

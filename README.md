@@ -48,3 +48,70 @@ progress_bar --demo
 progress_bar --demo 1000
 ```
 
+
+## CLI Options
+
+```bash
+# --preset; -P
+progress_bar --preset fast  # BAR='minimal'; EMPTY_CHAR=' '; COLORS='none';  BAR_START='[';           BAR_END='] ';   STATUS_FORMAT='{perc}%'
+progress_bar --preset slick # BAR='blocky';  EMPTY_CHAR='-'; COLORS='cool';  BAR_START='[';           BAR_END='] ';   STATUS_FORMAT='{done}/{todo}'
+progress_bar --preset fancy # BAR='smooth';  EMPTY_CHAR='-'; COLORS='pride'; BAR_START='PROGRESS :▕'; BAR_END='▏:: '; STATUS_FORMAT='{done}/{todo} ({perc}%)'
+
+# --bar; -b; BAR="${BAR:-'minimal'}"
+# Characters used to render filled parts of the bar
+progress_bar --bar minimal # BARCHARS=('#')
+progress_bar --bar blocky  # BARCHARS=('>' '%' '#')
+progress_bar --bar smooth  # BARCHARS=('▏' '▎' '▍' '▌' '▋' '▊' '▉' '█')
+progress_bar --bar '.:!|'  # BARCHARS=('.' ':' '!' '|')
+
+# --empty-char; -E; EMPTY_CHAR="${EMPTY_CHAR:-' '}"
+# Character used to render empty parts of the bar
+progress_bar --empty-char ' '
+progress_bar --empty-char '-'
+
+# --colors; -c; COLORS="${COLORS:-'none'}"
+# Gradient that the filled bar will be rendered with
+progress_bar --colors none               # GRADIENT=()
+progress_bar --colors cool               # GRADIENT=('60C0C0' 'C080D8')
+progress_bar --colors pride              # GRADIENT=('CC2222' 'CCCC22' '22CC22' '22CCCC' '2222CC' 'CC22CC')
+progress_bar --colors 'CC22CC,CC2222'    # GRADIENT=('CC22CC' 'CC2222')
+progress_bar --colors '#CC22CC, #CC2222' # GRADIENT=('CC22CC' 'CC2222')
+
+# --bar-start; -s; BAR_START="${BAR_START:-'['}"
+# Static string rendered right before the bar
+progress_bar --bar-start ''
+progress_bar --bar-start '['
+progress_bar --bar-start 'PROGRESS :▕'
+
+# --bar-end; -e; BAR_END="${BAR_END:-'] '}"
+# Static string rendered right after the bar
+progress_bar --bar-end ''
+progress_bar --bar-end '] '
+progress_bar --bar-end '▏:: '
+
+# --status-format; -f; STATUS_FORMAT="${STATUS_FORMAT:-'{perc}%'}"
+# Dynamic string rendered after the very right of the output
+# Can use the following tokens:
+# - `{done}` : Number of completed steps
+# - `{todo}` : Total number of defined steps
+# - `{perc}` : The current completion percentage
+progress_bar --status-fmt ''
+progress_bar --status-fmt '{perc}%'
+progress_bar --status-fmt '{done}/{todo} ({perc}%)'
+
+# --width; -p; WIDTH="${WIDTH:-'100'}"
+# Percentage of terminal width the bar will take up
+progress_bar --width 75
+
+# --max-width; -w; MAX_WIDTH="${MAX_WIDTH:-''}"
+# Maximum columns the bar will take up
+progress_bar --max-width 120
+
+# --interval; -i; INTERVAL="${INTERVAL:-'1'}"
+# Render only for every nth input
+progress_bar --interval 1
+progress_bar --interval 100
+
+# --demo
+progress_bar --demo
+```
