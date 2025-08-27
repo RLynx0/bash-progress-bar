@@ -242,15 +242,64 @@ function assert_arg {
   fi
 }
 
+COLOR_PRESET_NAMES=(
+'none'
+'cool'
+'ice'
+'fire'
+'ocean'
+'forest'
+'candy'
+'matrix'
+'sunset'
+'galaxy'
+'pride'
+)
 function resolve_colors {
   local colors="$1"
-  case "$colors" in
-    'none')  GRADIENT=()                                                      ;;
-    'cool')  GRADIENT=('60C0C0' 'C080D8')                                     ;;
-    'pride') GRADIENT=('CC2222' 'CCCC22' '22CC22' '22CCCC' '2222CC' 'CC22CC') ;;
-  esac
+  local parsed
+
+  if [[ "$colors" =~ ^(#?[a-fA-F0-9]{6}( *[;, ] *|$))*$ ]]; then
+    parsed="${colors//[,;#]/ }"
+  else
+    case "$colors" in
+      'none')   parsed=''                                          ;;
+      'cool')   parsed='60C0C0 C080D8'                             ;;
+      'ice')    parsed='2288AA 00FFFF AFEEEE'                      ;;
+      'fire')   parsed='FF4500 FF8C00 FFD722'                      ;;
+      'ocean')  parsed='0066FF 00CCCC 00FF99'                      ;;
+      'forest') parsed='228B22 6B8E23 ADFF2F'                      ;;
+      'candy')  parsed='FF69B4 FFB6C1 FFD1DC'                      ;;
+      'matrix') parsed='003300 00CC00 66FF66'                      ;;
+      'sunset') parsed='FF4500 FF6347 FF1493'                      ;;
+      'galaxy') parsed='226088 4B2BA2 8A2BE2 FF44FF'               ;;
+      'pride')  parsed='CC2222 CCCC22 22CC22 22CCCC 2222CC CC22CC' ;;
+
+      *)
+        {
+          echo "Invalid colors: '$colors'"
+          echo "Use a list of hex-colors, e.g. '#60C0C0, #C080D8'"
+          echo "Alternatively, use one of these predifined gradients:"
+          for name in "${COLOR_PRESET_NAMES[@]}"; do
+            echo "- '$name'"
+          done
+        } >&2
+        exit 1
+        ;;
+    esac
+  fi
+
+  GRADIENT=()
+  for color in $parsed; do
+    GRADIENT+=($color)
+  done
 }
 
+BAR_PRESET_NAMES=(
+  'minimal'
+  'blocky'
+  'smooth'
+)
 function resolve_bar {
   local bar="$1"
   case "$bar" in
@@ -266,10 +315,15 @@ function resolve_bar {
   esac
 }
 
+PRESET_NAMES=(
+  'minimal'
+  'slick'
+  'fancy'
+)
 function resolve_preset {
   case "$1" in
     '') ;;
-    'fast')
+    'minimal')
       resolve_colors 'none';
       resolve_bar 'minimal';
       EMPTY_CHAR=' ';
@@ -294,8 +348,13 @@ function resolve_preset {
       STATUS_FORMAT='{done}/{todo} ({perc}%)'
       ;;
     *)
-      echo "Unknown preset: '$1'" >&2
-      echo "Available presets are 'fast', 'slick' and 'fancy'" >&2
+      {
+        echo "Unknown preset: '$1'"
+        echo "Available presets are:"
+        for name in "${PRESET_NAMES[@]}"; do
+          echo "- '$name'"
+        done
+      } >&2
       exit 1
       ;;
   esac
@@ -328,7 +387,6 @@ while [[ $# -gt 0 ]]; do
       ;;
   esac
 done
-
 
 [ -n "$DEMO" ] \
 && pb_demo $ARGS \
