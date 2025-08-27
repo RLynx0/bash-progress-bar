@@ -226,7 +226,7 @@ function pb_demo {
   stty -echo -icanon
   for ((n = 0; n <= total; n++)); do echo "$n"
   done | COLUMNS='' pb_animate-progress-bar "$total"
-  stty sane; echo
+  stty sane
 }
 
 
@@ -243,17 +243,17 @@ function assert_arg {
 }
 
 COLOR_PRESET_NAMES=(
-'none'
-'cool'
-'ice'
-'fire'
-'ocean'
-'forest'
-'candy'
-'matrix'
-'sunset'
-'galaxy'
-'pride'
+  'none'
+  'cool'
+  'galaxy'
+  'ice'
+  'ocean'
+  'matrix'
+  'forest'
+  'fire'
+  'sunset'
+  'candy'
+  'pride'
 )
 function resolve_colors {
   local colors="$1"
@@ -265,14 +265,14 @@ function resolve_colors {
     case "$colors" in
       'none')   parsed=''                                          ;;
       'cool')   parsed='60C0C0 C080D8'                             ;;
-      'ice')    parsed='2288AA 00FFFF AFEEEE'                      ;;
-      'fire')   parsed='FF4500 FF8C00 FFD722'                      ;;
-      'ocean')  parsed='0066FF 00CCCC 00FF99'                      ;;
-      'forest') parsed='228B22 6B8E23 ADFF2F'                      ;;
-      'candy')  parsed='FF69B4 FFB6C1 FFD1DC'                      ;;
-      'matrix') parsed='003300 00CC00 66FF66'                      ;;
-      'sunset') parsed='FF4500 FF6347 FF1493'                      ;;
       'galaxy') parsed='226088 4B2BA2 8A2BE2 FF44FF'               ;;
+      'ice')    parsed='2288AA 00FFFF AFEEEE'                      ;;
+      'ocean')  parsed='0066FF 00CCCC 00FF99'                      ;;
+      'matrix') parsed='003300 00CC00 66FF66'                      ;;
+      'forest') parsed='228B22 6B8E23 ADFF2F'                      ;;
+      'fire')   parsed='FF4500 FF8C00 FFD722'                      ;;
+      'sunset') parsed='FF4500 FF6347 FF1493'                      ;;
+      'candy')  parsed='FF69B4 FFB6C1 FFD1DC'                      ;;
       'pride')  parsed='CC2222 CCCC22 22CC22 22CCCC 2222CC CC22CC' ;;
 
       *)
