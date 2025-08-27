@@ -53,9 +53,17 @@ progress_bar --demo 1000
 
 ```bash
 # --preset; -P
-progress_bar --preset fast  # BAR='minimal'; EMPTY_CHAR=' '; COLORS='none';  BAR_START='[';           BAR_END='] ';   STATUS_FORMAT='{perc}%'
-progress_bar --preset slick # BAR='blocky';  EMPTY_CHAR='-'; COLORS='cool';  BAR_START='[';           BAR_END='] ';   STATUS_FORMAT='{done}/{todo}'
-progress_bar --preset fancy # BAR='smooth';  EMPTY_CHAR='-'; COLORS='pride'; BAR_START='PROGRESS :▕'; BAR_END='▏:: '; STATUS_FORMAT='{done}/{todo} ({perc}%)'
+progress_bar --preset fast  # COLORS='none';  BAR='minimal'; EMPTY_CHAR=' '; BAR_START='[';           BAR_END='] ';   STATUS_FORMAT='{perc}%'
+progress_bar --preset slick # COLORS='cool';  BAR='blocky';  EMPTY_CHAR='-'; BAR_START='[';           BAR_END='] ';   STATUS_FORMAT='{done}/{todo}'
+progress_bar --preset fancy # COLORS='pride'; BAR='smooth';  EMPTY_CHAR='-'; BAR_START='PROGRESS :▕'; BAR_END='▏:: '; STATUS_FORMAT='{done}/{todo} ({perc}%)'
+
+# --colors; -c; COLORS="${COLORS:-'none'}"
+# Gradient that the filled bar will be rendered with
+progress_bar --colors none               # GRADIENT=()
+progress_bar --colors cool               # GRADIENT=('60C0C0' 'C080D8')
+progress_bar --colors pride              # GRADIENT=('CC2222' 'CCCC22' '22CC22' '22CCCC' '2222CC' 'CC22CC')
+progress_bar --colors 'CC22CC,CC2222'    # GRADIENT=('CC22CC' 'CC2222')
+progress_bar --colors '#CC22CC, #CC2222' # GRADIENT=('CC22CC' 'CC2222')
 
 # --bar; -b; BAR="${BAR:-'minimal'}"
 # Characters used to render filled parts of the bar
@@ -68,14 +76,6 @@ progress_bar --bar '.:!|'  # BARCHARS=('.' ':' '!' '|')
 # Character used to render empty parts of the bar
 progress_bar --empty-char ' '
 progress_bar --empty-char '-'
-
-# --colors; -c; COLORS="${COLORS:-'none'}"
-# Gradient that the filled bar will be rendered with
-progress_bar --colors none               # GRADIENT=()
-progress_bar --colors cool               # GRADIENT=('60C0C0' 'C080D8')
-progress_bar --colors pride              # GRADIENT=('CC2222' 'CCCC22' '22CC22' '22CCCC' '2222CC' 'CC22CC')
-progress_bar --colors 'CC22CC,CC2222'    # GRADIENT=('CC22CC' 'CC2222')
-progress_bar --colors '#CC22CC, #CC2222' # GRADIENT=('CC22CC' 'CC2222')
 
 # --bar-start; -s; BAR_START="${BAR_START:-'['}"
 # Static string rendered right before the bar

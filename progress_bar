@@ -22,6 +22,8 @@ INTERVAL="${INTERVAL:-"$DEFAULT__INTERVAL"}"
 
 BARCHARS=('#')
 GRADIENT=()
+DEMO=''
+ARGS=()
 
 pb_last_cols=''
 pb_last_color=''
@@ -219,7 +221,7 @@ function pb_animate-progress-bar {
   done; echo
 }
 
-function demo {
+function pb_demo {
   total="${1:-250}"
   stty -echo -icanon
   for ((n = 0; n <= total; n++)); do echo "$n"
@@ -227,4 +229,109 @@ function demo {
   stty sane; echo
 }
 
-demo "$1"
+
+function print_help {
+  echo "todo"
+}
+
+function assert_arg {
+  if [ -z "$2" ]; then
+    echo "$1 requires an argument" >&2
+    echo "Pass the --help flag for usage" >&2
+    exit 1
+  fi
+}
+
+function resolve_colors {
+  local colors="$1"
+  case "$colors" in
+    'none')  GRADIENT=()                                                      ;;
+    'cool')  GRADIENT=('60C0C0' 'C080D8')                                     ;;
+    'pride') GRADIENT=('CC2222' 'CCCC22' '22CC22' '22CCCC' '2222CC' 'CC22CC') ;;
+  esac
+}
+
+function resolve_bar {
+  local bar="$1"
+  case "$bar" in
+    'minimal') BARCHARS=('#')                             ;;
+    'blocky')  BARCHARS=('>' '%' '#')                     ;;
+    'smooth')  BARCHARS=('▏' '▎' '▍' '▌' '▋' '▊' '▉' '█') ;;
+    *)
+      BARCHARS=()
+      for ((i = 0; i < ${#bar}; i++)); do
+        BARCHARS+=("${bar:i:1}");
+      done
+      ;;
+  esac
+}
+
+function resolve_preset {
+  case "$1" in
+    '') ;;
+    'fast')
+      resolve_colors 'none';
+      resolve_bar 'minimal';
+      EMPTY_CHAR=' ';
+      BAR_START='[';
+      BAR_END='] ';
+      STATUS_FORMAT='{perc}%'
+      ;;
+    'slick')
+      resolve_colors 'cool';
+      resolve_bar 'blocky';
+      EMPTY_CHAR='-';
+      BAR_START='[';
+      BAR_END='] ';
+      STATUS_FORMAT='{done}/{todo}'
+      ;;
+    'fancy')
+      resolve_colors 'pride';
+      resolve_bar 'smooth';
+      EMPTY_CHAR='-';
+      BAR_START='PROGRESS :▕';
+      BAR_END='▏:: ';
+      STATUS_FORMAT='{done}/{todo} ({perc}%)'
+      ;;
+    *)
+      echo "Unknown preset: '$1'" >&2
+      echo "Available presets are 'fast', 'slick' and 'fancy'" >&2
+      exit 1
+      ;;
+  esac
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    '-P'|'--preset')     assert_arg "$1" "$2"; resolve_preset "$2"; shift 2 ;;
+    '-c'|'--colors')     assert_arg "$1" "$2"; resolve_colors "$2"; shift 2 ;;
+    '-b'|'--bar')        assert_arg "$1" "$2"; resolve_bar "$2";    shift 2 ;;
+    '-E'|'--empty-char') assert_arg "$1" "$2"; EMPTY_CHAR="$2";     shift 2 ;;
+    '-s'|'--bar-start')  assert_arg "$1" "$2"; BAR_START="$2";      shift 2 ;;
+    '-e'|'--bar-end')    assert_arg "$1" "$2"; BAR_END="$2";        shift 2 ;;
+    '-f'|'--status-fmt') assert_arg "$1" "$2"; STATUS_FORMAT="$2";  shift 2 ;;
+    '-i'|'--interval')   assert_arg "$1" "$2"; INTERVAL="$2";       shift 2 ;;
+    '-w'|'--width')      assert_arg "$1" "$2"; WIDTH="$2";          shift 2 ;;
+    '-W'|'--max-width')  assert_arg "$1" "$2"; MAX_WIDTH="$2";      shift 2 ;;
+    '--demo') DEMO='1'; shift ;;
+
+    '-?'|'-h'|'--help') print_help; exit 1 ;;
+    *)
+      if [[ "$1" =~ ^-+.* ]]; then
+        echo "Unknown option: '$1'" >&2
+        echo "Pass the --help flag for usage" >&2
+        exit 1
+      else
+        ARGS+=("$1")
+        shift
+      fi
+      ;;
+  esac
+done
+
+
+if [ -n "$DEMO" ]; then
+  pb_demo $ARGS
+else
+  pb_animate-progress-bar $ARGS
+fi
