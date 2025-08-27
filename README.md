@@ -52,7 +52,7 @@ progress_bar --demo 1000
 ## CLI Options
 
 ```bash
-# --preset; -P
+# --preset; -p
 progress_bar --preset fast  # COLORS='none';  BAR='minimal'; EMPTY_CHAR=' '; BAR_START='[';           BAR_END='] ';   STATUS_FORMAT='{perc}%'
 progress_bar --preset slick # COLORS='cool';  BAR='blocky';  EMPTY_CHAR='-'; BAR_START='[';           BAR_END='] ';   STATUS_FORMAT='{done}/{todo}'
 progress_bar --preset fancy # COLORS='pride'; BAR='smooth';  EMPTY_CHAR='-'; BAR_START='PROGRESS :▕'; BAR_END='▏:: '; STATUS_FORMAT='{done}/{todo} ({perc}%)'
@@ -99,11 +99,11 @@ progress_bar --status-fmt ''
 progress_bar --status-fmt '{perc}%'
 progress_bar --status-fmt '{done}/{todo} ({perc}%)'
 
-# --width; -p; WIDTH="${WIDTH:-'100'}"
+# --width; -w; WIDTH="${WIDTH:-'100'}"
 # Percentage of terminal width the bar will take up
 progress_bar --width 75
 
-# --max-width; -w; MAX_WIDTH="${MAX_WIDTH:-''}"
+# --max-width; -W; MAX_WIDTH="${MAX_WIDTH:-''}"
 # Maximum columns the bar will take up
 progress_bar --max-width 120
 
@@ -114,4 +114,18 @@ progress_bar --interval 100
 
 # --demo
 progress_bar --demo
+```
+
+The following snippet renders a progress bar that
+- takes up 50% of the terminal width
+- is never wider than 120 columns
+- uses the 'fancy' preset
+- uses the color-scheme 'cool'
+- receives reversed input
+
+```bash
+total=1000
+for ((i = total; i >= 0; i--)); do
+  echo "$i"
+done | progress_bar -w 50 -W 120 -p 'fancy' -c 'cool' "$total"
 ```
