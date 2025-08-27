@@ -298,6 +298,7 @@ function resolve_colors {
 BAR_PRESET_NAMES=(
   'minimal'
   'blocky'
+  'pipes'
   'smooth'
 )
 function resolve_bar {
@@ -305,6 +306,7 @@ function resolve_bar {
   case "$bar" in
     'minimal') BARCHARS=('#')                             ;;
     'blocky')  BARCHARS=('>' '%' '#')                     ;;
+    'pipes')   BARCHARS=('.' ':' '!' '|')                 ;;
     'smooth')  BARCHARS=('▏' '▎' '▍' '▌' '▋' '▊' '▉' '█') ;;
     *)
       BARCHARS=()
