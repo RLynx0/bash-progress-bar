@@ -303,7 +303,7 @@ function resolve_preset {
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    '-P'|'--preset')     assert_arg "$1" "$2"; resolve_preset "$2"; shift 2 ;;
+    '-p'|'--preset')     assert_arg "$1" "$2"; resolve_preset "$2"; shift 2 ;;
     '-c'|'--colors')     assert_arg "$1" "$2"; resolve_colors "$2"; shift 2 ;;
     '-b'|'--bar')        assert_arg "$1" "$2"; resolve_bar "$2";    shift 2 ;;
     '-E'|'--empty-char') assert_arg "$1" "$2"; EMPTY_CHAR="$2";     shift 2 ;;
@@ -330,8 +330,6 @@ while [[ $# -gt 0 ]]; do
 done
 
 
-if [ -n "$DEMO" ]; then
-  pb_demo $ARGS
-else
-  pb_animate-progress-bar $ARGS
-fi
+[ -n "$DEMO" ] \
+&& pb_demo $ARGS \
+|| pb_animate-progress-bar $ARGS
