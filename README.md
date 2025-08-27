@@ -129,3 +129,7 @@ for ((i = total; i >= 0; i--)); do
   echo "$i"
 done | progress_bar -w 50 -W 120 -p 'fancy' -c 'cool' "$total"
 ```
+
+> Note that parameters are evaluated in the order they are passed in.
+> For example, `progress_bar -c 'forest' -p 'slick'` will first load the 'forest'
+> color scheme, and then overwrite it with the color scheme from the 'slick' preset.
