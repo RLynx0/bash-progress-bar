@@ -115,7 +115,7 @@ function pb_print-bar {
   local cols="${COLUMNS:-$(tput cols)}"
   local status_text="$(pb_get-status-text "$done" "$todo")"
   local final_status="$(pb_get-status-text "$todo" "$todo")"
-  local reserved="$((${#BAR_START} + ${#BAR_END} + ${#final_status}))"
+  local reserved="$((${#BAR_START} + ${#BAR_END} + ${#final_status} + 1))"
 
   # Scale cols to width-perc and max-width
   [ "$WIDTH" -le 100 ] && cols=$((cols * WIDTH / 100))
