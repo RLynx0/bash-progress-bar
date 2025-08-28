@@ -299,7 +299,7 @@ function print_help {
   echo "                          - A custom string (each character used in sequence)"
   echo "                          - One of these predefined character sets:"
   echo "                            $(printf "'%s' " "${BAR_PRESET_NAMES[@]}")"
-  echo "  -E, --empty-str STR   Character for empty space in the bar."
+  echo "  -E, --empty-str STR   String used to tile empty space in the bar."
   echo "  -s, --bar-start STR   String shown at the start of the bar."
   echo "                        Using '--preset bare' sets this to be empty."
   echo "  -e, --bar-end STR     String shown at the end of the bar."
@@ -445,7 +445,7 @@ function resolve_preset {
     'slick')
       resolve_colors 'cool';
       resolve_bar 'blocky';
-      EMPTY_STR='-';
+      EMPTY_STR='- ';
       BAR_START='[';
       BAR_END='] ';
       STATUS_FMT='{done}/{todo}'
