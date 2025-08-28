@@ -2,35 +2,40 @@
 
 DEFAULT__DEMO_TOTAL='250'
 DEFAULT__BAR='minimal'
-DEFAULT__EMPTY_CHAR=' '
+DEFAULT__EMPTY_STR=' '
 DEFAULT__COLORS='none'
 DEFAULT__BAR_START='['
 DEFAULT__BAR_END='] '
-DEFAULT__STATUS_FORMAT='{perc}%'
+DEFAULT__STATUS_FMT='{perc}%'
 DEFAULT__WIDTH='100'
 DEFAULT__MAX_WIDTH=''
 DEFAULT__INTERVAL='1'
 
 BAR="${BAR:-"$DEFAULT__BAR"}"
-EMPTY_CHAR="${EMPTY_CHAR:-"$DEFAULT__EMPTY_CHAR"}"
+EMPTY_STR="${EMPTY_STR:-"$DEFAULT__EMPTY_STR"}"
 COLORS="${COLORS:-"$DEFAULT__COLORS"}"
 BAR_START="${BAR_START:-"$DEFAULT__BAR_START"}"
 BAR_END="${BAR_END:-"$DEFAULT__BAR_END"}"
-STATUS_FORMAT="${STATUS_FORMAT:-"$DEFAULT__STATUS_FORMAT"}"
+STATUS_FMT="${STATUS_FMT:-"$DEFAULT__STATUS_FMT"}"
 WIDTH="${WIDTH:-"$DEFAULT__WIDTH"}"
 MAX_WIDTH="${MAX_WIDTH:-"$DEFAULT__MAX_WIDTH"}"
 INTERVAL="${INTERVAL:-"$DEFAULT__INTERVAL"}"
 
 BARCHARS=('#')
 GRADIENT=()
-SHOW=''
 DEMO=''
 ARGS=()
 
-pb_last_cols=''
-pb_last_color=''
-pb_last_bar_perc=''
-pb_last_status_text=''
+declare pb_last_cols
+declare pb_last_color
+declare pb_last_bar_perc
+declare pb_last_status_text
+function pb_reset-vars {
+  pb_last_cols=''
+  pb_last_color=''
+  pb_last_bar_perc=''
+  pb_last_status_text=''
+}
 
 function hexlerp {
   local a="$1"; local b="$2"; local step="$3"; local steps="$4"
@@ -80,7 +85,7 @@ function pb_get-status-text {
   local done="$1"
   local todo="$2"
   local perc="$((done * 100 / todo))"
-  local text="$STATUS_FORMAT"
+  local text="$STATUS_FMT"
 
   # Replace placeholders
   text="${text//\{done\}/$done}"
@@ -204,7 +209,7 @@ function pb_print-bar {
 
     # Pad with empty characters
     for ((; i < draw_empty_to; i++)); do
-      b+="$EMPTY_CHAR"
+      b+="$EMPTY_STR"
     done
   fi
 
@@ -232,16 +237,40 @@ function pb_demo {
 }
 
 function pb_show-off {
+  echo '╔═════════════════════╗'
+  echo '║ Showing off PRESETS ║'
+  echo '╚═════════════════════╝'
   for demo_preset in "${PRESET_NAMES[@]}"; do
-    for demo_bar in "${BAR_PRESET_NAMES[@]}"; do
-      for demo_color in "${COLOR_PRESET_NAMES[@]}"; do
-        echo "$demo_preset - $demo_bar - $demo_color"
-        resolve_preset "$demo_preset"
-        resolve_colors "$demo_color"
-        resolve_bar "$demo_bar"
-        pb_demo "$1"
-      done
-    done
+    resolve_preset "$demo_preset"
+    echo -e "\n=>> Option: --preset '$demo_preset'"
+    pb_reset-vars; pb_demo "$1"
+  done
+
+  echo -e '\n'
+  resolve_preset 'bare'
+  STATUS_FMT='{done}/{todo}'
+  BAR_END=' '; EMPTY_STR='-'
+  echo '╔═════════════════════════╗'
+  echo '║ Showing off BAR-PRESETS ║'
+  echo '╚═════════════════════════╝'
+  for demo_bar in "${BAR_PRESET_NAMES[@]}"; do
+    resolve_bar "$demo_bar"
+    echo -e "\n=>> Option: --bar '$demo_bar'"
+    echo "==> Equals: --bar '$(printf "%s" "${BARCHARS[@]}")'"
+    pb_reset-vars; pb_demo "$1"
+  done
+
+  echo -e '\n'
+  resolve_bar 'smooth'
+  echo '╔═══════════════════════════╗'
+  echo '║ Showing off COLOR-PRESETS ║'
+  echo '╚═══════════════════════════╝'
+  for demo_color in "${COLOR_PRESET_NAMES[@]}"; do
+    resolve_colors "$demo_color"
+    echo -e "\n=>> Option: --colors '$demo_color'"
+    [ "${#GRADIENT[@]}" -gt 0 ] \
+    && echo "==> Equals: --colors '$(printf "#%s;" "${GRADIENT[@]}")'"
+    pb_reset-vars; pb_demo "$1"
   done
 }
 
@@ -270,7 +299,7 @@ function print_help {
   echo "                          - A custom string (each character used in sequence)"
   echo "                          - One of these predefined character sets:"
   echo "                            $(printf "'%s' " "${BAR_PRESET_NAMES[@]}")"
-  echo "  -E, --empty-char C    Character for empty space in the bar."
+  echo "  -E, --empty-str STR   Character for empty space in the bar."
   echo "  -s, --bar-start STR   String shown at the start of the bar."
   echo "                        Using '--preset bare' sets this to be empty."
   echo "  -e, --bar-end STR     String shown at the end of the bar."
@@ -391,34 +420,34 @@ function resolve_preset {
     'bare')
       resolve_colors 'none';
       resolve_bar 'minimal';
-      EMPTY_CHAR=' ';
+      EMPTY_STR=' ';
       BAR_START='';
       BAR_END='';
-      STATUS_FORMAT=''
+      STATUS_FMT=''
       ;;
     'simple')
       resolve_colors 'none';
       resolve_bar 'minimal';
-      EMPTY_CHAR=' ';
+      EMPTY_STR=' ';
       BAR_START='[';
       BAR_END='] ';
-      STATUS_FORMAT='{perc}%'
+      STATUS_FMT='{perc}%'
       ;;
     'slick')
       resolve_colors 'cool';
       resolve_bar 'blocky';
-      EMPTY_CHAR='-';
+      EMPTY_STR='-';
       BAR_START='[';
       BAR_END='] ';
-      STATUS_FORMAT='{done}/{todo}'
+      STATUS_FMT='{done}/{todo}'
       ;;
     'fancy')
       resolve_colors 'pride';
       resolve_bar 'smooth';
-      EMPTY_CHAR='-';
-      BAR_START='PROGRESS :▕';
+      EMPTY_STR='-';
+      BAR_START='PROGRESS :🮇';
       BAR_END='▏:: ';
-      STATUS_FORMAT='{done}/{todo} ({perc}%)'
+      STATUS_FMT='{done}/{todo} ({perc}%)'
       ;;
     *)
       {
@@ -438,15 +467,15 @@ while [[ $# -gt 0 ]]; do
     '-p'|'--preset')     assert_arg "$1" "$2"; resolve_preset "$2"; shift 2 ;;
     '-c'|'--colors')     assert_arg "$1" "$2"; resolve_colors "$2"; shift 2 ;;
     '-b'|'--bar')        assert_arg "$1" "$2"; resolve_bar "$2";    shift 2 ;;
-    '-E'|'--empty-char') assert_arg "$1" "$2"; EMPTY_CHAR="$2";     shift 2 ;;
+    '-E'|'--empty_str')  assert_arg "$1" "$2"; EMPTY_STR="$2";     shift 2 ;;
     '-s'|'--bar-start')  assert_arg "$1" "$2"; BAR_START="$2";      shift 2 ;;
     '-e'|'--bar-end')    assert_arg "$1" "$2"; BAR_END="$2";        shift 2 ;;
-    '-f'|'--status-fmt') assert_arg "$1" "$2"; STATUS_FORMAT="$2";  shift 2 ;;
+    '-f'|'--status-fmt') assert_arg "$1" "$2"; STATUS_FMT="$2";  shift 2 ;;
     '-i'|'--interval')   assert_arg "$1" "$2"; INTERVAL="$2";       shift 2 ;;
     '-w'|'--width')      assert_arg "$1" "$2"; WIDTH="$2";          shift 2 ;;
     '-W'|'--max-width')  assert_arg "$1" "$2"; MAX_WIDTH="$2";      shift 2 ;;
-    '--show-off') SHOW='1'; shift ;;
-    '--demo')     DEMO='1'; shift ;;
+    '--show-off') DEMO='ALL';        shift ;;
+    '--demo')     DEMO="${DEMO:-1}"; shift ;;
 
     '-?'|'-h'|'--help') print_help; exit 1 ;;
     *)
@@ -462,7 +491,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-if [ -n "$SHOW" ]; then
+if [ "$DEMO" == 'ALL' ]; then
   pb_show-off $ARGS
 elif [ -n "$DEMO" ]; then
  pb_demo $ARGS
