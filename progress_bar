@@ -317,7 +317,7 @@ function print_help {
   echo "  -?, -h, --help        Show this help and exit."
   echo
   echo "Examples:"
-  echo "  $self -p fancy 50"
+  echo "  $self -p rainbow 50"
   echo "  $self --colors '#FF0000;#00FF00;#0000FF' 75"
   echo "  $self --bar '.*|' --width 40 --demo"
   echo "  $self --demo -p bare -c matrix -b 0123456789 -W 10"
@@ -335,7 +335,7 @@ COLOR_PRESET_NAMES=(
   'none'
   'cool'
   'galaxy'
-  'ice'
+  'frost'
   'ocean'
   'matrix'
   'forest'
@@ -356,7 +356,7 @@ function resolve_colors {
       'none')   parsed=''                                          ;;
       'cool')   parsed='60C0C0 C080D8'                             ;;
       'galaxy') parsed='226088 4B2BA2 8A2BE2 FF44FF'               ;;
-      'ice')    parsed='2288AA 00FFFF AFEEEE'                      ;;
+      'frost')  parsed='2288AA 00FFFF AFEEEE'                      ;;
       'ocean')  parsed='0066FF 00CCCC 00FF99'                      ;;
       'matrix') parsed='003300 00CC00 66FF66'                      ;;
       'forest') parsed='228B22 6B8E23 ADFF2F'                      ;;
@@ -390,6 +390,8 @@ BAR_PRESET_NAMES=(
   'minimal'
   'blocky'
   'pipes'
+  'fade'
+  'ramp'
   'smooth'
 )
 function resolve_bar {
@@ -398,6 +400,8 @@ function resolve_bar {
     'minimal') BARCHARS=('#')                             ;;
     'blocky')  BARCHARS=('>' '%' '#')                     ;;
     'pipes')   BARCHARS=('.' ':' '!' '|')                 ;;
+    'fade')    BARCHARS=('░' '▒' '▓' '█')                 ;;
+    'ramp')    BARCHARS=('▁' '▂' '▃' '▄' '▅' '▆' '▇' '█') ;;
     'smooth')  BARCHARS=('▏' '▎' '▍' '▌' '▋' '▊' '▉' '█') ;;
     *)
       BARCHARS=()
@@ -412,7 +416,10 @@ PRESET_NAMES=(
   'bare'
   'simple'
   'slick'
-  'fancy'
+  'hacker'
+  'flame'
+  'wave'
+  'rainbow'
 )
 function resolve_preset {
   case "$1" in
@@ -441,12 +448,36 @@ function resolve_preset {
       BAR_END='] ';
       STATUS_FMT='{done}/{todo}'
       ;;
-    'fancy')
+    'hacker')
+      resolve_colors 'matrix';
+      resolve_bar 'smooth';
+      EMPTY_STR=' ';
+      BAR_START='░';
+      BAR_END='░ ';
+      STATUS_FMT='PROGRESS {perc}%';
+      ;;
+    'flame')
+      resolve_colors 'fire';
+      resolve_bar 'pipes';
+      EMPTY_STR='.';
+      BAR_START='{';
+      BAR_END='} ';
+      STATUS_FMT='{perc}!';
+      ;;
+    'wave')
+      resolve_colors 'ocean';
+      resolve_bar 'ramp';
+      EMPTY_STR=' ';
+      BAR_START='🮇';
+      BAR_END='▏ ';
+      STATUS_FMT='{done}/{todo}';
+      ;;
+    'rainbow')
       resolve_colors 'pride';
       resolve_bar 'smooth';
       EMPTY_STR='-';
-      BAR_START='PROGRESS :🮇';
-      BAR_END='▏:: ';
+      BAR_START='(:🮇';
+      BAR_END='▏:) ';
       STATUS_FMT='{done}/{todo} ({perc}%)'
       ;;
     *)
@@ -467,10 +498,10 @@ while [[ $# -gt 0 ]]; do
     '-p'|'--preset')     assert_arg "$1" "$2"; resolve_preset "$2"; shift 2 ;;
     '-c'|'--colors')     assert_arg "$1" "$2"; resolve_colors "$2"; shift 2 ;;
     '-b'|'--bar')        assert_arg "$1" "$2"; resolve_bar "$2";    shift 2 ;;
-    '-E'|'--empty_str')  assert_arg "$1" "$2"; EMPTY_STR="$2";     shift 2 ;;
+    '-E'|'--empty_str')  assert_arg "$1" "$2"; EMPTY_STR="$2";      shift 2 ;;
     '-s'|'--bar-start')  assert_arg "$1" "$2"; BAR_START="$2";      shift 2 ;;
     '-e'|'--bar-end')    assert_arg "$1" "$2"; BAR_END="$2";        shift 2 ;;
-    '-f'|'--status-fmt') assert_arg "$1" "$2"; STATUS_FMT="$2";  shift 2 ;;
+    '-f'|'--status-fmt') assert_arg "$1" "$2"; STATUS_FMT="$2";     shift 2 ;;
     '-i'|'--interval')   assert_arg "$1" "$2"; INTERVAL="$2";       shift 2 ;;
     '-w'|'--width')      assert_arg "$1" "$2"; WIDTH="$2";          shift 2 ;;
     '-W'|'--max-width')  assert_arg "$1" "$2"; MAX_WIDTH="$2";      shift 2 ;;
