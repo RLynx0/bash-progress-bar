@@ -372,7 +372,7 @@ function resolve_colors {
         {
           echo "Invalid colors: '$colors'"
           echo "Use a list of hex-colors, e.g. '#60C0C0, #C080D8'"
-          echo "Alternatively, use one of these predifined gradients:"
+          echo "Alternatively, use one of these predefined gradients:"
           for name in "${COLOR_PRESET_NAMES[@]}"; do
             echo "- '$name'"
           done
