@@ -224,6 +224,7 @@ function pb_print-bar {
 function pb_animate-progress-bar {
   total="$1"
   while read n; do
+    [[ "$n" =~ ^-?[0-9]+$ ]] || continue;
     pb_print-bar "$n" "$total"
   done; echo
 }
