@@ -510,11 +510,10 @@ while [[ $# -gt 0 ]]; do
     '-i'|'--interval')   assert_arg "$1" "$2"; INTERVAL="$2";       shift 2 ;;
     '-w'|'--width')      assert_arg "$1" "$2"; WIDTH="$2";          shift 2 ;;
     '-W'|'--max-width')  assert_arg "$1" "$2"; MAX_WIDTH="$2";      shift 2 ;;
-
     '--show-off') DEMO='ALL';        shift ;;
     '--demo')     DEMO="${DEMO:-1}"; shift ;;
 
-    '-?'|'-h'|'--help') print_help; exit 1   ;;
+    '-?'|'-h'|'--help') print_help; exit 0 ;;
     '--') shift; break ;;
     *)
       if [[ "$1" =~ ^-+.* ]]; then
