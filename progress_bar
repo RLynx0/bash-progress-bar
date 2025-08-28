@@ -229,7 +229,7 @@ function pb_animate-progress-bar {
 }
 
 function pb_demo {
-  total="${1:-"$DEFAULT__DEMO_TOTAL"}"
+  total="$1"
   stty -echo -icanon
   for ((n = 0; n <= total; n++)); do echo "$n"
   done | COLUMNS='' pb_animate-progress-bar "$total"
@@ -237,13 +237,15 @@ function pb_demo {
 }
 
 function pb_show-off {
+  local total="$1"
+  
   echo '╔═════════════════════╗'
   echo '║ Showing off PRESETS ║'
   echo '╚═════════════════════╝'
   for demo_preset in "${PRESET_NAMES[@]}"; do
     resolve_preset "$demo_preset"
     echo -e "\n=>> Option: --preset '$demo_preset'"
-    pb_reset-vars; pb_demo "$1"
+    pb_reset-vars; pb_demo "$total"
   done
 
   echo -e '\n'
@@ -257,7 +259,7 @@ function pb_show-off {
     resolve_bar "$demo_bar"
     echo -e "\n=>> Option: --bar '$demo_bar'"
     echo "==> Equals: --bar '$(printf "%s" "${BARCHARS[@]}")'"
-    pb_reset-vars; pb_demo "$1"
+    pb_reset-vars; pb_demo "$total"
   done
 
   echo -e '\n'
@@ -270,20 +272,21 @@ function pb_show-off {
     echo -e "\n=>> Option: --colors '$demo_color'"
     [ "${#GRADIENT[@]}" -gt 0 ] \
     && echo "==> Equals: --colors '$(printf "#%s;" "${GRADIENT[@]}")'"
-    pb_reset-vars; pb_demo "$1"
+    pb_reset-vars; pb_demo "$total"
   done
 }
 
 function print_help {
   local self="$(basename "$0")"
-  echo "Usage: $self [OPTIONS] [NUMBER]"
+  echo "Usage: $self [OPTIONS] TOTAL"
   echo
   echo "Animate a progress bar with customizable colors, characters, and styles."
   echo
   echo "Arguments:"
-  echo "  NUMBER                Progress value (required for normal execution)."
+  echo "  TOTAL                 Progress value (required for normal execution)."
   echo "                        Must be a non-negative integer."
-  echo "                        Defaults to $DEFAULT__DEMO_TOTAL when running in demo mode."
+  echo "                        Optional when running in demo mode."
+  echo "                        Defaults to $DEFAULT__DEMO_TOTAL in this case."
   echo
   echo "Options:"
   echo "  -p, --preset NAME     Use a predefined preset."
@@ -507,10 +510,12 @@ while [[ $# -gt 0 ]]; do
     '-i'|'--interval')   assert_arg "$1" "$2"; INTERVAL="$2";       shift 2 ;;
     '-w'|'--width')      assert_arg "$1" "$2"; WIDTH="$2";          shift 2 ;;
     '-W'|'--max-width')  assert_arg "$1" "$2"; MAX_WIDTH="$2";      shift 2 ;;
+
     '--show-off') DEMO='ALL';        shift ;;
     '--demo')     DEMO="${DEMO:-1}"; shift ;;
 
-    '-?'|'-h'|'--help') print_help; exit 1 ;;
+    '-?'|'-h'|'--help') print_help; exit 1   ;;
+    '--') shift; break ;;
     *)
       if [[ "$1" =~ ^-+.* ]]; then
         echo "Unknown option: '$1'" >&2
@@ -524,10 +529,27 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-if [ "$DEMO" == 'ALL' ]; then
-  pb_show-off $ARGS
-elif [ -n "$DEMO" ]; then
- pb_demo $ARGS
+while [[ $# -gt 0 ]]; do ARGS+=($1); shift; done
+if [ "${#ARGS[@]}" -gt 1 ]; then
+  echo "Unexpected argument: '${ARGS[1]}'" >&2
+  echo "Pass the --help flag for usage" >&2
+  exit 1
+fi
+
+declare total="${ARGS[0]}"
+[ -n "$DEMO" ] && total="${total:-"$DEFAULT__DEMO_TOTAL"}"
+if [ -n "$total" ] && ! [[ "$total" =~ ^[0-9]+$ ]]; then
+  echo "Invalid argument: '$total'" >&2
+  echo "TOTAL must be a non-negative integer" >&2
+  echo "Pass the --help flag for usage" >&2
+  exit 1
+fi
+
+if   [ "$DEMO" == 'ALL' ]; then pb_show-off $total
+elif [ -n "$DEMO"       ]; then pb_demo $total
+elif [ -n "$total"  ]; then pb_animate-progress-bar $total
 else
-  pb_animate-progress-bar $ARGS
+  echo "Usage: $(basename "$0") [OPTIONS] TOTAL" >&2
+  echo "Pass the --help flag for details" >&2
+  exit 1
 fi
