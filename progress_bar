@@ -314,6 +314,7 @@ function print_help {
   echo "  -w, --width P         Percentage of the terminal width the bar should use."
   echo "  -W, --max-width N     Maximum width of the bar in columns."
   echo "  --demo                Run a demo of the progress bar."
+  echo "  --show-off            Run demos of all presets, bar presets and color presets."
   echo "  -?, -h, --help        Show this help and exit."
   echo
   echo "Examples:"
@@ -416,9 +417,9 @@ PRESET_NAMES=(
   'bare'
   'simple'
   'slick'
-  'hacker'
   'flame'
   'wave'
+  'hacker'
   'rainbow'
 )
 function resolve_preset {
@@ -448,14 +449,6 @@ function resolve_preset {
       BAR_END='] ';
       STATUS_FMT='{done}/{todo}'
       ;;
-    'hacker')
-      resolve_colors 'matrix';
-      resolve_bar 'smooth';
-      EMPTY_STR=' ';
-      BAR_START='░';
-      BAR_END='░ ';
-      STATUS_FMT='PROGRESS {perc}%';
-      ;;
     'flame')
       resolve_colors 'fire';
       resolve_bar 'pipes';
@@ -471,6 +464,14 @@ function resolve_preset {
       BAR_START='🮇';
       BAR_END='▏ ';
       STATUS_FMT='{done}/{todo}';
+      ;;
+    'hacker')
+      resolve_colors 'matrix';
+      resolve_bar 'smooth';
+      EMPTY_STR=' ';
+      BAR_START='░';
+      BAR_END='░ ';
+      STATUS_FMT='PROGRESS {perc}%';
       ;;
     'rainbow')
       resolve_colors 'pride';
