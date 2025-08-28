@@ -322,6 +322,7 @@ function print_help {
   echo "  $self --colors '#FF0000;#00FF00;#0000FF' 75"
   echo "  $self --bar '.*|' --width 40 --demo"
   echo "  $self --demo -p bare -c matrix -b 0123456789 -W 10"
+  echo "  $self --show-off -w 50"
 }
 
 function assert_arg {
@@ -467,7 +468,7 @@ function resolve_preset {
       ;;
     'hacker')
       resolve_colors 'matrix';
-      resolve_bar 'smooth';
+      resolve_bar 'fade';
       EMPTY_STR=' ';
       BAR_START='░';
       BAR_END='░ ';
