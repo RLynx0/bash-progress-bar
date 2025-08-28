@@ -23,8 +23,8 @@ INTERVAL="${INTERVAL:-"$DEFAULT__INTERVAL"}"
 
 BARCHARS=('#')
 GRADIENT=()
-DEMO=''
 ARGS=()
+DEMO=''
 
 declare pb_last_cols
 declare pb_last_color
@@ -209,7 +209,7 @@ function pb_print-bar {
 
     # Pad with empty characters
     for ((; i < draw_empty_to; i++)); do
-      b+="$EMPTY_STR"
+      b+="${EMPTY_STR:i % ${#EMPTY_STR}:1}"
     done
   fi
 
