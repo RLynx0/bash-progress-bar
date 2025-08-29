@@ -337,6 +337,16 @@ function assert_arg {
   fi
 }
 
+function assert_num {
+  assert_arg "$1" "$2"
+  if ! [[ "$2" =~ ^[0-9]+$ ]]; then
+    echo "Invalid argument for $1: '$2'" >&2
+    echo "Must be a non-negative integer" >&2
+    echo "Pass the --help flag for usage" >&2
+    exit 1
+  fi
+}
+
 COLOR_PRESET_NAMES=(
   'none'
   'cool'
@@ -508,9 +518,9 @@ while [[ $# -gt 0 ]]; do
     '-s'|'--bar-start')  assert_arg "$1" "$2"; BAR_START="$2";      shift 2 ;;
     '-e'|'--bar-end')    assert_arg "$1" "$2"; BAR_END="$2";        shift 2 ;;
     '-f'|'--status-fmt') assert_arg "$1" "$2"; STATUS_FMT="$2";     shift 2 ;;
-    '-i'|'--interval')   assert_arg "$1" "$2"; INTERVAL="$2";       shift 2 ;;
-    '-w'|'--width')      assert_arg "$1" "$2"; WIDTH="$2";          shift 2 ;;
-    '-W'|'--max-width')  assert_arg "$1" "$2"; MAX_WIDTH="$2";      shift 2 ;;
+    '-i'|'--interval')   assert_num "$1" "$2"; INTERVAL="$2";       shift 2 ;;
+    '-w'|'--width')      assert_num "$1" "$2"; WIDTH="$2";          shift 2 ;;
+    '-W'|'--max-width')  assert_num "$1" "$2"; MAX_WIDTH="$2";      shift 2 ;;
     '--show-off') DEMO='ALL';        shift ;;
     '--demo')     DEMO="${DEMO:-1}"; shift ;;
 
