@@ -409,7 +409,10 @@ BAR_PRESET_NAMES=(
   'minimal'
   'blocky'
   'pipes'
+  'dots'
   'fade'
+  'paint'
+  'pixel'
   'ramp'
   'smooth'
 )
@@ -419,7 +422,10 @@ function resolve_bar {
     'minimal') BARCHARS=('#')                             ;;
     'blocky')  BARCHARS=('>' '%' '#')                     ;;
     'pipes')   BARCHARS=('.' ':' '!' '|')                 ;;
+    'dots')    BARCHARS=('·' '•' '●')                     ;;
     'fade')    BARCHARS=('░' '▒' '▓' '█')                 ;;
+    'paint')   BARCHARS=('🬀' '🬄' '▌' '🬕' '🬝' '█')         ;;
+    'pixel')   BARCHARS=('▖' '▘' '▝' '▗' '▞' '▚' '█')     ;;
     'ramp')    BARCHARS=('▁' '▂' '▃' '▄' '▅' '▆' '▇' '█') ;;
     'smooth')  BARCHARS=('▏' '▎' '▍' '▌' '▋' '▊' '▉' '█') ;;
     *)
