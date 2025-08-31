@@ -28,13 +28,13 @@ DEMO=''
 
 declare pb_last_cols
 declare pb_last_color
-declare pb_last_bar_perc
-declare pb_last_status_text
+declare -a pb_last_bar_percs
+declare -a pb_last_status_texts
 function pb_reset-vars {
   pb_last_cols=''
   pb_last_color=''
-  pb_last_bar_perc=''
-  pb_last_status_text=''
+  pb_last_bar_percs=()
+  pb_last_status_texts=()
 }
 
 function hexlerp {
@@ -105,8 +105,9 @@ function pb_move {
 }
 
 function pb_print-bar {
-  local done="$1"
-  local todo="$2"
+  local index="$1"
+  local done="$2"
+  local todo="$3"
 
   # Return early depending on interval
   [ "$((done % INTERVAL))" -eq 0 ] \
@@ -129,8 +130,12 @@ function pb_print-bar {
   [ -n "$MAX_WIDTH" ] && [ "$cols" -gt "$MAX_WIDTH" ] && cols="$MAX_WIDTH"
   [ "$cols" -lt "$reserved" ] && cols="$reserved"
 
+  # Last status_text and bar_perc
+  local last_status_text="${pb_last_status_texts["$index"]}"
+  local last_bar_perc="${pb_last_bar_percs["$index"]}"
+
   # Pad out status_text to overwrite longer old one
-  while [ "${#status_text}" -lt "${#pb_last_status_text}" ]; do
+  while [ "${#status_text}" -lt "${#last_status_text}" ]; do
     status_text+=" "
   done
 
@@ -143,13 +148,13 @@ function pb_print-bar {
 
   # Return early if nothing changed
   [ "$cols" == "$pb_last_cols" ] \
-  && [ "$bar_perc" == "$pb_last_bar_perc" ] \
-  && [ "$status_text" == "$pb_last_status_text" ] \
+  && [ "$bar_perc" == "$last_bar_perc" ] \
+  && [ "$status_text" == "$last_status_text" ] \
   && return
   
   # Work variables
   local i; local a; local b; local c
-  local ma="-${#pb_last_status_text}"
+  local ma="-${#last_status_text}"
   local mc='0'
   local color
 
@@ -159,23 +164,23 @@ function pb_print-bar {
   local draw_empty_to='0'
   if [ "$pb_last_cols" != "$cols" ]; then
     # Terminal window changed -> Redraw everything
+    pb_last_bar_percs["$index"]='0'
     draw_empty_to="$available"
     pb_last_cols="$cols"
-    pb_last_bar_perc='0'
     draw_to_bar='1'
     full_redraw='1'
-  elif [ "$pb_last_bar_perc" -lt "$bar_perc" ]; then
+  elif [ "$last_bar_perc" -lt "$bar_perc" ]; then
     # Only progress changed -> Add new bar-characters
     # Calculate cursor offset to overwrite only the changed section
-    ma="$((ma - ${#BAR_END} - available + (pb_last_bar_perc / bfactor)))"
+    ma="$((ma - ${#BAR_END} - available + (last_bar_perc / bfactor)))"
     mc="$((mc + (full_bar - bar_perc) / bfactor + ${#BAR_END}))"
     draw_to_bar='1'
-  elif [ "$pb_last_bar_perc" -gt "$bar_perc" ]; then
+  elif [ "$last_bar_perc" -gt "$bar_perc" ]; then
     # Redraw bar section cleanly
     ma="$((ma - ${#BAR_END} - available + (bar_perc / bfactor)))"
-    draw_empty_to="$(((pb_last_bar_perc + bfactor - 1) / bfactor))"
+    draw_empty_to="$(((last_bar_perc + bfactor - 1) / bfactor))"
     mc="$((mc + available - draw_empty_to + ${#BAR_END}))"
-    pb_last_bar_perc="$bar_perc"
+    pb_last_bar_percs["$index"]="$bar_perc"
     draw_to_bar='1'
   fi
 
@@ -191,7 +196,7 @@ function pb_print-bar {
 
   if [ -n "$draw_to_bar" ]; then
     # Continue drawing bar from last progress point
-    i="$((pb_last_bar_perc / bfactor))"
+    i="$((last_bar_perc / bfactor))"
     for ((; i < bar_perc / bfactor; i++)); do
       color="$(pb_get-color "$(((i + 1) * bfactor))" "$full_bar")"
       b+="${color}${BARCHARS[-1]}"
@@ -214,8 +219,8 @@ function pb_print-bar {
   fi
 
   # Save current state for next update
-  pb_last_bar_perc="$bar_perc"
-  pb_last_status_text="$status_text"
+  pb_last_bar_percs["$index"]="$bar_perc"
+  pb_last_status_texts["$index"]="$status_text"
 
   # Draw the bar and status
   echo -ne "${a}${b}${c}${status_text}"
@@ -225,7 +230,7 @@ function pb_animate-progress-bar {
   total="$1"
   while read n; do
     [[ "$n" =~ ^-?[0-9]+$ ]] || continue;
-    pb_print-bar "$n" "$total"
+    pb_print-bar '0' "$n" "$total"
   done; echo
 }
 
