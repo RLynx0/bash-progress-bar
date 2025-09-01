@@ -399,17 +399,15 @@ function assert_num {
 
 COLOR_PRESET_NAMES=(
   'none'
-  'cool'
-  'galaxy'
-  'frost'
-  'ocean'
-  'matrix'
-  'forest'
-  'health'
-  'fire'
-  'sunset'
-  'candy'
-  'pride'
+
+  # Simple
+  'red'  'yellow' 'green'
+  'cyan' 'blue'   'magenta'
+
+  # Gradients
+  'cool'   'galaxy' 'frost'  'ocean'
+  'matrix' 'forest' 'health' 'fire'
+  'sunset' 'candy'  'pride'
 )
 function resolve_colors {
   local colors="$1"
@@ -419,7 +417,15 @@ function resolve_colors {
     parsed="${colors//[,;#]/ }"
   else
     case "$colors" in
-      'none')   parsed=''                                          ;;
+      'none') parsed='' ;;
+
+      'red')     parsed='FF0000' ;;
+      'yellow')  parsed='FFFF00' ;;
+      'green')   parsed='00FF00' ;;
+      'cyan')    parsed='00FFFF' ;;
+      'blue')    parsed='0000FF' ;;
+      'magenta') parsed='FF00FF' ;;
+
       'cool')   parsed='60C0C0 C080D8'                             ;;
       'galaxy') parsed='226088 4B2BA2 8A2BE2 FF44FF'               ;;
       'frost')  parsed='2288AA 00FFFF AFEEEE'                      ;;
