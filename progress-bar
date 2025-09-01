@@ -100,7 +100,7 @@ function pb_get-status-text {
 }
 
 # Returns ANSII code to move cursor left or right
-function pb_move {
+function pb_move-horizontal {
   m="$1"
   if   [ "$m" -eq 0 ]; then echo ''
   elif [ "$m" -gt 0 ]; then echo "\033[${m}C"
@@ -148,7 +148,7 @@ function pb_print-bar {
   local last_bar_perc="${pb_last_bar_percs["$index"]}"
 
   # Pad out status_text to overwrite longer old one
-  while [ "${#status_text}" -lt "${#last_status_text}" ]; do
+  while [ "${#status_text}" -lt "${#final_status}" ]; do
     status_text+=" "
   done
 
@@ -167,7 +167,7 @@ function pb_print-bar {
   
   # Work variables
   local i; local a; local b; local c
-  local ma="-${#pb_last_status_texts["${pb_last_index:-0}"]}"
+  local ma="-${#final_status}"
   local mc=0
   local color
 
@@ -204,8 +204,8 @@ function pb_print-bar {
     c="${BAR_END}"
   else
     # Incremental update: Just move cursor to the right places
-    a="$(pb_move "$ma")"
-    c="$(pb_move "$mc")"
+    a="$(pb_move-horizontal "$ma")"
+    c="$(pb_move-horizontal "$mc")"
   fi
 
   if [ -n "$draw_to_bar" ]; then
