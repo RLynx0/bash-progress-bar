@@ -1,15 +1,15 @@
 #!/bin/bash
 
-DEFAULT__DEMO_TOTAL='250'
+DEFAULT__DEMO_TOTAL=250
 DEFAULT__BAR='minimal'
 DEFAULT__EMPTY_STR=' '
 DEFAULT__COLORS='none'
 DEFAULT__BAR_START='['
 DEFAULT__BAR_END='] '
 DEFAULT__STATUS_FMT='{perc}%'
-DEFAULT__WIDTH='100'
+DEFAULT__WIDTH=100
 DEFAULT__MAX_WIDTH=''
-DEFAULT__INTERVAL='1'
+DEFAULT__INTERVAL=1
 
 BAR="${BAR:-"$DEFAULT__BAR"}"
 EMPTY_STR="${EMPTY_STR:-"$DEFAULT__EMPTY_STR"}"
@@ -115,8 +115,8 @@ function pb_print-bar {
   || return
 
   # Sanity checks
-  [ "$todo" -le 0 ] && todo='1'
-  [ "$done" -lt 0 ] && done='0'
+  [ "$todo" -le 0 ] && todo=1
+  [ "$done" -lt 0 ] && done=0
   [ "$done" -gt "$todo" ] && done="$todo"
 
   # Get terminal space and reserved area length
@@ -155,33 +155,33 @@ function pb_print-bar {
   # Work variables
   local i; local a; local b; local c
   local ma="-${#last_status_text}"
-  local mc='0'
+  local mc=0
   local color
 
   # Choose draw mode
   local draw_to_bar=''
   local full_redraw=''
-  local draw_empty_to='0'
+  local draw_empty_to=0
   if [ "$pb_last_cols" != "$cols" ]; then
     # Terminal window changed -> Redraw everything
-    pb_last_bar_percs["$index"]='0'
     draw_empty_to="$available"
     pb_last_cols="$cols"
-    draw_to_bar='1'
-    full_redraw='1'
+    last_bar_perc=0
+    draw_to_bar=1
+    full_redraw=1
   elif [ "$last_bar_perc" -lt "$bar_perc" ]; then
     # Only progress changed -> Add new bar-characters
     # Calculate cursor offset to overwrite only the changed section
     ma="$((ma - ${#BAR_END} - available + (last_bar_perc / bfactor)))"
     mc="$((mc + (full_bar - bar_perc) / bfactor + ${#BAR_END}))"
-    draw_to_bar='1'
+    draw_to_bar=1
   elif [ "$last_bar_perc" -gt "$bar_perc" ]; then
     # Redraw bar section cleanly
     ma="$((ma - ${#BAR_END} - available + (bar_perc / bfactor)))"
     draw_empty_to="$(((last_bar_perc + bfactor - 1) / bfactor))"
     mc="$((mc + available - draw_empty_to + ${#BAR_END}))"
-    pb_last_bar_percs["$index"]="$bar_perc"
-    draw_to_bar='1'
+    last_bar_perc="$bar_perc"
+    draw_to_bar=1
   fi
 
   if [ -n "$full_redraw" ]; then
@@ -230,7 +230,7 @@ function pb_animate-progress-bar {
   total="$1"
   while read n; do
     [[ "$n" =~ ^-?[0-9]+$ ]] || continue;
-    pb_print-bar '0' "$n" "$total"
+    pb_print-bar 0 "$n" "$total"
   done; echo
 }
 
