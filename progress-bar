@@ -28,11 +28,15 @@ DEMO=''
 
 declare pb_last_cols
 declare pb_last_color
+declare pb_last_index
+declare -a pb_last_totals
 declare -a pb_last_bar_percs
 declare -a pb_last_status_texts
 function pb_reset-vars {
   pb_last_cols=''
   pb_last_color=''
+  pb_last_index=''
+  pb_last_totals=()
   pb_last_bar_percs=()
   pb_last_status_texts=()
 }
@@ -163,7 +167,7 @@ function pb_print-bar {
   
   # Work variables
   local i; local a; local b; local c
-  local ma="-${#last_status_text}"
+  local ma="-${#pb_last_status_texts["${pb_last_index:-0}"]}"
   local mc=0
   local color
 
@@ -171,8 +175,9 @@ function pb_print-bar {
   local draw_to_bar=''
   local full_redraw=''
   local draw_empty_to=0
-  if [ "$pb_last_cols" != "$cols" ]; then
+  if [ "${pb_last_totals["$index"]}" != "$todo" ]; then
     # Terminal window changed -> Redraw everything
+    pb_last_totals["$index"]="$todo"
     draw_empty_to="$available"
     pb_last_cols="$cols"
     last_bar_perc=0
@@ -228,6 +233,7 @@ function pb_print-bar {
   fi
 
   # Save current state for next update
+  pb_last_index="$index"
   pb_last_bar_percs["$index"]="$bar_perc"
   pb_last_status_texts["$index"]="$status_text"
 
@@ -240,6 +246,7 @@ function pb_animate-progress-bars {
   local -a values=()
   local bar_index=0
   local i; local n
+  local nb=1
 
   while read x; do
     x="${x// /}"
@@ -258,12 +265,15 @@ function pb_animate-progress-bars {
       n="$((values[i] - ${n#-}))"
     fi
 
-    # echo "($bar_index) $i: $n / ${totals["$i"]}" # For testing
-    # Calculate offset from last index and move there
-    
-    pb_print-bar 0 "$n" "${totals["$i"]}"
-    values["$i"]="$n"; bar_index="$i"
-  done; echo
+    [ "$nb" -le "$i" ] && nb="$((i + 1))"
+    echo -en "$(pb_move-vertical $((i - bar_index)))"
+    pb_print-bar "$i" "$n" "${totals["$i"]}"
+
+    values["$i"]="$n"
+    bar_index="$i"
+  done
+
+  for ((i = bar_index; i < nb; i++)); do echo; done
 }
 
 function pb_demo {
