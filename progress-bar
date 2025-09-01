@@ -235,11 +235,34 @@ function pb_print-bar {
   echo -ne "${a}${b}${c}${status_text}"
 }
 
-function pb_animate-progress-bar {
-  total="$1"
-  while read n; do
-    [[ "$n" =~ ^-?[0-9]+$ ]] || continue;
-    pb_print-bar 0 "$n" "$total"
+function pb_animate-progress-bars {
+  local -a totals=("$1")
+  local -a values=()
+  local bar_index=0
+  local i; local n
+
+  while read x; do
+    x="${x// /}"
+    [[ "$x" =~ ^([0-9]+:)?[+-]?[0-9]+(/[1-9][0-9]*)?$ ]] \
+    && [ -n "$x" ] || continue;
+
+    [[ "$x" =~ : ]] && i="${x%:*}" || i="$bar_index"
+    [[ "$x" =~ / ]] && totals["$i"]="${x#*/}"
+    totals["$i"]="${totals["$i"]:-"$1"}"
+    values["$i"]="${values["$i"]:-0}"
+
+    n="${x#*:}"; n="${n%/*}"
+    if [[ "$n" =~ \+ ]]; then
+      n="$((values[i] + ${n#\+}))"
+    elif [[ "$n" =~ - ]]; then
+      n="$((values[i] - ${n#-}))"
+    fi
+
+    # echo "($bar_index) $i: $n / ${totals["$i"]}" # For testing
+    # Calculate offset from last index and move there
+    
+    pb_print-bar 0 "$n" "${totals["$i"]}"
+    values["$i"]="$n"; bar_index="$i"
   done; echo
 }
 
@@ -247,7 +270,7 @@ function pb_demo {
   total="$1"
   stty -echo -icanon
   for ((n = 0; n <= total; n++)); do echo "$n"
-  done | COLUMNS='' pb_animate-progress-bar "$total"
+  done | COLUMNS='' pb_animate-progress-bars "$total"
   stty sane
 }
 
@@ -580,7 +603,7 @@ fi
 
 if   [ "$DEMO" == 'ALL' ]; then pb_show-off $total
 elif [ -n "$DEMO"       ]; then pb_demo $total
-elif [ -n "$total"  ]; then pb_animate-progress-bar $total
+elif [ -n "$total"  ]; then pb_animate-progress-bars $total
 else
   echo "Usage: $(basename "$0") [OPTIONS] TOTAL" >&2
   echo "Pass the --help flag for details" >&2
