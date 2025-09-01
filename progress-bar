@@ -104,6 +104,15 @@ function pb_move {
   fi
 }
 
+# Returns ANSII code to move cursor up or down
+function pb_move-vertical {
+  m="$1"
+  if   [ "$m" -eq 0 ]; then echo ''
+  elif [ "$m" -gt 0 ]; then echo "\033[${m}B"
+  elif [ "$m" -lt 0 ]; then echo "\033[$((0 - m))A"
+  fi
+}
+
 function pb_print-bar {
   local index="$1"
   local done="$2"
