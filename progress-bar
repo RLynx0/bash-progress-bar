@@ -432,7 +432,7 @@ function resolve_colors {
       'magenta') parsed='FF00FF' ;;
 
       'cool')   parsed='60C0C0 C080D8'                             ;;
-      'galaxy') parsed='226088 4B2BA2 8A2BE2 FF44FF'               ;;
+      'galaxy') parsed='226088 4B2BA2 FF44FF'                      ;;
       'frost')  parsed='2288AA 00FFFF AFEEEE'                      ;;
       'ocean')  parsed='0066FF 00CCCC 00FF99'                      ;;
       'matrix') parsed='003300 00CC00 66FF66'                      ;;
