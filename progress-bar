@@ -286,13 +286,14 @@ function pb_animate-progress-bars {
       n="$((values[i] - ${n#-}))"
     fi
 
+    local s=''
     while [ "$nb" -le "$i" ]; do
       nb=$((nb + 1))
       bar_index=$((bar_index + 1))
-      echo
+      s+="\n"
     done
 
-    echo -en "$(pb_move-vertical $((i - bar_index)))"
+    echo -en "$(pb_move-vertical $((i - bar_index)))$s"
     pb_print-bar "$i" "$n" "${totals["$i"]}"
 
     values["$i"]="$n"
