@@ -1,3 +1,21 @@
+# Showing Off
+
+In this repository's root directory, invoke the following code for a display of what this script is capable of.  
+It displays gradients, updating multiple bars at once, sub-character progress bar updates and self-padding string formatting.  
+Yeah, I'm pretty proud of this. :)
+
+```sh
+./multibar-sample-input \
+| ./progress_bar \
+    -w 32 \
+    -E '. ' \
+    -b blocky \
+    -e ']  ' \
+    -c sunset \
+    -f '{"{done}/{todo}":>11} ({perc:3}%)' \
+    250
+```
+
 # Usage
 
 `progress_bar` accepts an integer argument `total`, representing 100% completion.
