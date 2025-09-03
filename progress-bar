@@ -21,6 +21,7 @@ WIDTH="${WIDTH:-"$DEFAULT__WIDTH"}"
 MAX_WIDTH="${MAX_WIDTH:-"$DEFAULT__MAX_WIDTH"}"
 INTERVAL="${INTERVAL:-"$DEFAULT__INTERVAL"}"
 
+CALLNAME="${0##*/}"
 BARCHARS=('#')
 GRADIENT=()
 ARGS=()
@@ -330,8 +331,7 @@ function pb_show-off {
 }
 
 function print_help {
-  local self="$(basename "$0")"
-  echo "Usage: $self [OPTIONS] TOTAL"
+  echo "Usage: $CALLNAME [OPTIONS] TOTAL"
   echo
   echo "Animate a progress bar with customizable colors, characters, and styles."
   echo
@@ -377,11 +377,11 @@ function print_help {
   echo "  -?, -h, --help        Show this help and exit."
   echo
   echo "Examples:"
-  echo "  $self -p rainbow 50"
-  echo "  $self --colors '#FF0000;#00FF00;#0000FF' 75"
-  echo "  $self --bar '.*|' --width 40 --demo"
-  echo "  $self --demo -p bare -c matrix -b 0123456789 -W 10"
-  echo "  $self --show-off -w 50"
+  echo "  $CALLNAME -p rainbow 50"
+  echo "  $CALLNAME --colors '#FF0000;#00FF00;#0000FF' 75"
+  echo "  $CALLNAME --bar '.*|' --width 40 --demo"
+  echo "  $CALLNAME --demo -p bare -c matrix -b 0123456789 -W 10"
+  echo "  $CALLNAME --show-off -w 50"
 }
 
 function assert_arg {
@@ -626,7 +626,7 @@ if   [ "$DEMO" == 'ALL' ]; then pb_show-off $total
 elif [ -n "$DEMO"       ]; then pb_demo $total
 elif [ -n "$total"  ]; then pb_animate-progress-bars $total
 else
-  echo "Usage: $(basename "$0") [OPTIONS] TOTAL" >&2
+  echo "Usage: $CALLNAME [OPTIONS] TOTAL" >&2
   echo "Pass the --help flag for details" >&2
   exit 1
 fi
