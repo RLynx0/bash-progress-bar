@@ -404,10 +404,8 @@ function pb_show-off {
   fi
 }
 
-function print_help {
+function print_short_help {
   cat <<EOF
-A highly customizable, pure bash, multi-bar progress indicator for shell scripts.
-
 Usage: $CALLNAME [OPTIONS] TOTAL
        $CALLNAME [OPTIONS] --list [SET]
        $CALLNAME [OPTIONS] --demo [TOTAL]
@@ -425,15 +423,24 @@ Options:
   -E, --empty-str STR      Pattern used to pad empty space in the bar.        Default: '$DEFAULT__EMPTY_STR'
   -s, --bar-start STR      String shown before the bar.                       Default: '$DEFAULT__BAR_START'
   -e, --bar-end STR        String shown after the bar.                        Default: '$DEFAULT__BAR_END'
-  -f, --status-fmt STR     Format string for status (see below).              Default: '$DEFAULT__STATUS_FMT'
+  -f, --status-fmt STR     Format string for status.                          Default: '$DEFAULT__STATUS_FMT'
   -w, --width PERCENT      Set bar width as percentage of terminal width.     Default: '$DEFAULT__WIDTH'
   -W, --max-width COLS     Maximum bar width in columns.                      Default: '$DEFAULT__MAX_WIDTH'
-  -i, --interval N         Update only if input is divisible by N.            Defatul: '$DEFAULT__INTERVAL'
-  -?, -h, --help           Show this help message and exit.
+  -i, --interval N         Update only if input is divisible by N.            Default: '$DEFAULT__INTERVAL'
+  --help                   Show detailed help message and exit.
+  -?, -h                   Show short help message and exit.
 
   --demo                   Run a demo progress bar with the current settings.
   --list [SET]             List available presets for 'preset', 'bar', 'colors' or 'all'.
   --show-off [SET]         Preview available presets for 'preset', 'bar', 'colors' or 'all'.
+EOF
+}
+
+function print_long_help {
+  cat <<EOF
+A highly customizable, pure bash, multi-bar progress indicator for shell scripts.
+
+$(print_short_help)
 
 Examples:
   $CALLNAME -p rainbow 50
@@ -475,7 +482,7 @@ Status format:
     {perc}   Percentage (integer).
 
   You can also insert sub-strings with {"..."}.
-  These can include nested varibales.
+  These can include nested variables.
 
   Padding and alignment:
     {EXPR:N}, {EXPR:>N}  Right-align EXPR in width N.
@@ -712,7 +719,8 @@ while [[ $# -gt 0 ]]; do
       esac ;;
     '--demo') DEMO="${DEMO:-1}"; shift ;;
 
-    '-?'|'-h'|'--help') print_help; exit 0 ;;
+    '-?'|'-h') print_short_help; exit 0 ;;
+    '--help') print_long_help; exit 0 ;;
     '--') shift; break ;;
     *)
       if [[ "$1" =~ ^-+.* ]]; then
