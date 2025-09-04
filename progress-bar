@@ -44,7 +44,7 @@ function pb_reset-vars {
 
 function hexlerp {
   local a="$1"; local b="$2"; local step="$3"; local steps="$4"
-  echo "$((16#${a} + (16#${b} - 16#${a}) * step / steps))"
+  echo "$((10#${a} + (16#${b} - 16#${a}) * step / steps))"
 }
 
 function pb_get-color {
@@ -86,6 +86,27 @@ function pb_reset-color {
   echo "$color"
 }
 
+function pb_pad {
+  local text="$1"
+  local pad_str="$2"
+  local pad_side="$3"
+  local pad_len="$(($4 - ${#text}))"
+
+  local padding_l; local padding_r
+  for ((i = 0; i < pad_len / 2; i++)); do
+    padding_l+="${pad_str:i % ${#pad_str}:1}"
+  done
+  for ((; i < pad_len; i++)); do
+    padding_r+="${pad_str:i % ${#pad_str}:1}"
+  done
+
+  case "$pad_side" in
+    '>'|'') echo "${padding_l}${padding_r}${text}" ;;
+    '<')    echo "${text}${padding_l}${padding_r}" ;;
+    '^')    echo "${padding_l}${text}${padding_r}" ;;
+  esac
+}
+
 function pb_get-status-text {
   local done="$1"
   local todo="$2"
@@ -99,30 +120,12 @@ function pb_get-status-text {
     local st_pad_str="${BASH_REMATCH[4]:-" "}"
     local st_pad_side="${BASH_REMATCH[5]}"
 
-    local st_padding_l=''
-    local st_padding_r=''
     local st_resolved=''
-    local st_final=''
-
     [[ "$st_expr" =~ ^\"(.+)\"$ ]] \
     && st_resolved="${BASH_REMATCH[1]}" \
     || st_resolved="${!st_expr}"
-    st_pad_len="$((st_pad_len - ${#st_resolved}))"
 
-    for ((i = 0; i < st_pad_len / 2; i++)); do
-      st_padding_l+="${st_pad_str:i % ${#st_pad_str}:1}"
-    done
-    for ((; i < st_pad_len; i++)); do
-      st_padding_r+="${st_pad_str:i % ${#st_pad_str}:1}"
-    done
-
-    case "$st_pad_side" in
-      '>'|'') st_final="${st_padding_l}${st_padding_r}${st_resolved}" ;;
-      '<')    st_final="${st_resolved}${st_padding_l}${st_padding_r}" ;;
-      '^')    st_final="${st_padding_l}${st_resolved}${st_padding_r}" ;;
-    esac
-
-    text="${text/"$st_match"/"$st_final"}"
+    text="${text/"$st_match"/"$(pb_pad "$st_resolved" "$st_pad_str" "$st_pad_side" "$st_pad_len")"}"
   done
 
   echo "$text"
@@ -311,6 +314,38 @@ function pb_animate-progress-bars {
   for ((i = bar_index; i < nb; i++)); do echo; done
 }
 
+function pb_list {
+  local mode="$1"
+
+  if [ "$mode" == 'a' ] || [ "$mode" == 'p' ]; then
+    echo 'Available PRESETS (--preset):'
+    for demo_preset in "${PRESET_NAMES[@]}"; do
+      echo -e "  $demo_preset"
+    done
+  fi
+
+  [ "$mode" == 'a' ] && echo -e '\n'
+  if [ "$mode" == 'a' ] || [ "$mode" == 'b' ]; then
+    echo 'Available BAR-PRESETS (--bar):'
+    for demo_bar in "${BAR_PRESET_NAMES[@]}"; do
+      resolve_bar "$demo_bar"
+      echo -n "  $(pb_pad "$demo_bar" ' ' '<' 12)"
+      echo "--bar '$(printf "%s" "${BARCHARS[@]}")'"
+    done
+  fi
+
+  [ "$mode" == 'a' ] && echo -e '\n'
+  if [ "$mode" == 'a' ] || [ "$mode" == 'c' ]; then
+    echo 'Available COLOR-PRESETS (--colors):'
+    for demo_colors in "${COLOR_PRESET_NAMES[@]}"; do
+      resolve_colors "$demo_colors"
+      echo -n "  $(pb_pad "$demo_colors" ' ' '<' 12)"
+      [ "${#GRADIENT}" -eq 0 ] && echo \
+      || echo "--colors '$(printf "#%s;" "${GRADIENT[@]}")'"
+    done
+  fi
+}
+
 function pb_demo {
   total="$1"
   stty -echo -icanon
@@ -370,58 +405,89 @@ function pb_show-off {
 }
 
 function print_help {
-  echo "Usage: $CALLNAME [OPTIONS] TOTAL"
-  echo
-  echo "Animate a progress bar with customizable colors, characters, and styles."
-  echo
-  echo "Arguments:"
-  echo "  TOTAL                 Progress value (required for normal execution)."
-  echo "                        Must be a non-negative integer."
-  echo "                        Defaults to $DEFAULT__DEMO_TOTAL when running in demo mode."
-  echo
-  echo "Options:"
-  echo "  -p, --preset NAME     Use a predefined preset."
-  echo "                        The 'bare' preset uses empty strings wherever possible."
-  echo "                        The following presets are available:"
-  echo "                        $(printf "'%s' " "${PRESET_NAMES[@]}")"
-  echo "  -c, --colors LIST     Define gradient colors. Can be:"
-  echo "                          - A comma/semicolon/space separated list of hex colors"
-  echo "                            (e.g. '#60C0C0, #C080D8')"
-  echo "                          - One of these predefined gradients:"
-  echo "                            $(printf "'%s' " "${COLOR_PRESET_NAMES[@]}")"
-  echo "  -b, --bar NAME        Define bar characters. Can be:"
-  echo "                          - A custom string (each character used in sequence)"
-  echo "                          - One of these predefined character sets:"
-  echo "                            $(printf "'%s' " "${BAR_PRESET_NAMES[@]}")"
-  echo "  -E, --empty-str STR   String used to tile empty space in the bar."
-  echo "                        Defaults to '$DEFAULT__EMPTY_STR'."
-  echo "  -s, --bar-start STR   String shown at the start of the bar."
-  echo "                        Defaults to '$DEFAULT__BAR_START'."
-  echo "                        Using '--preset bare' sets this to be empty."
-  echo "  -e, --bar-end STR     String shown at the end of the bar."
-  echo "                        Defaults to '$DEFAULT__BAR_END'."
-  echo "                        Using '--preset bare' sets this to be empty."
-  echo "  -f, --status-fmt FMT  Format string for status."
-  echo "                        Defaults to '$DEFAULT__STATUS_FMT'."
-  echo "                        Using '--preset bare' sets this to be empty."
-  echo "                        Available placeholders:"
-  echo "                          {done}   Completed steps"
-  echo "                          {todo}   Remaining steps"
-  echo "                          {perc}   Percentage done"
-  echo "  -i, --interval N      Update only if input is divisible by N."
-  echo "  -w, --width P         Percentage of the terminal width the bar should use."
-  echo "  -W, --max-width N     Maximum width of the bar in columns."
-  echo "  --demo                Run a demo of the progress bar."
-  echo "  --show-off            Run demos of all presets, bar presets and color presets."
-  echo "  -?, -h, --help        Show this help and exit."
-  echo
-  echo "Examples:"
-  echo "  $CALLNAME -p rainbow 50"
-  echo "  $CALLNAME --colors '#FF0000;#00FF00;#0000FF' 75"
-  echo "  $CALLNAME --bar '.*|' --width 40 --demo"
-  echo "  $CALLNAME --demo -p bare -c matrix -b 0123456789 -W 10"
-  echo "  $CALLNAME --demo -b 'CCCCccccccccCCCC ' -E ' ⚬ ' -c yellow -w 25 2500"
-  echo "  $CALLNAME --show-off -w 50"
+  cat <<EOF
+A highly customizable, pure bash, multi-bar progress indicator for shell scripts.
+
+Usage: $CALLNAME [OPTIONS] TOTAL
+       $CALLNAME [OPTIONS] --list [SET]
+       $CALLNAME [OPTIONS] --demo [TOTAL]
+       $CALLNAME [OPTIONS] --show-off [SET] [TOTAL]
+
+Arguments:
+  TOTAL     Total count for the progress bar (non-negative integer).
+            Required unless --help, --list, --demo or --show-off is given.
+            Defaults to '$DEFAULT__DEMO_TOTAL' for --demo and --show-off.
+
+Options:
+  -p, --preset NAME        Apply a style preset.
+  -c, --colors LIST        Gradient of hex colors or preset name.             Default: '$DEFAULT__COLORS'
+  -b, --bar NAME           Characters used to fill the bar or preset name.    Default: '$DEFAULT__BAR'
+  -E, --empty-str STR      Pattern used to pad empty space in the bar.        Default: '$DEFAULT__EMPTY_STR'
+  -s, --bar-start STR      String shown before the bar.                       Default: '$DEFAULT__BAR_START'
+  -e, --bar-end STR        String shown after the bar.                        Default: '$DEFAULT__BAR_END'
+  -f, --status-fmt STR     Format string for status (see below).              Default: '$DEFAULT__STATUS_FMT'
+  -w, --width PERCENT      Set bar width as percentage of terminal width.     Default: '$DEFAULT__WIDTH'
+  -W, --max-width COLS     Maximum bar width in columns.                      Default: '$DEFAULT__MAX_WIDTH'
+  -i, --interval N         Update only if input is divisible by N.            Defatul: '$DEFAULT__INTERVAL'
+  -?, -h, --help           Show this help message and exit.
+
+  --demo                   Run a demo progress bar with the current settings.
+  --list [SET]             List available presets for 'preset', 'bar', 'colors' or 'all'.
+  --show-off [SET]         Preview available presets for 'preset', 'bar', 'colors' or 'all'.
+
+Examples:
+  $CALLNAME -p rainbow 50
+  $CALLNAME --colors '#FF0000;#00FF00;#0000FF' 75
+  $CALLNAME --bar '.*|' --width 40 --demo
+  $CALLNAME --demo -p bare -c matrix -b 0123456789 -W 10
+  $CALLNAME --demo -b 'CCCCccccccccCCCC ' -E ' ⚬ ' -c yellow -w 25 2500
+  $CALLNAME --show-off -w 50
+
+Input and multi-bar usage:
+  The script updates progress-bars according to input through stdin.
+  It supports updating multiple bars at once.
+  Input lines can look like this:
+
+    N               Set progress of the current bar to N.
+    N/M             Set progress of the current bar to N out of M.
+    I:N             Update bar with index I to N.
+    I:N/M           Update bar I to N out of M.
+    I:+D            Increment bar I by D.
+    I:-D            Decrement bar I by D.
+
+  Example:
+   printf '%s\n' '0:20' '1:60/200' '0:+5' '1:+10' | $CALLNAME 100
+
+  This will print two bars, then increment bar 0 by 5 and bar 1 by 10.
+  TOTAL=100 is only used for bar 0, since the second line specifies a total.
+
+Notes:
+  - Bars can only be updated while they are visible in the terminal viewport.
+  - Use --demo or --show-off to preview different bar styles.
+
+Status format:
+  The status text shown next to the bar is defined by --status-fmt.
+  It supports variable substitution and optional padding/alignment.
+
+  Variables:
+    {done}   Number of completed steps.
+    {todo}   Total number of steps.
+    {perc}   Percentage (integer).
+
+  You can also insert sub-strings with {"..."}.
+  These can include nested varibales.
+
+  Padding and alignment:
+    {EXPR:N}, {EXPR:>N}  Right-align EXPR in width N.
+    {EXPR:<N}            Left-align EXPR in width N.
+    {EXPR:^N}            Center-align EXPR in width N.
+    {EXPR:PAD>N}         Use PAD as the padding string instead of spaces.
+
+  Examples:
+    $CALLNAME --demo --status-fmt 'static status'
+    $CALLNAME --demo -f '{done}/{todo} ({perc}%)'
+    $CALLNAME --demo -f '{"{done}/{todo}":^9} ({perc:3}%)'
+EOF
 }
 
 function assert_arg {
@@ -629,15 +695,22 @@ while [[ $# -gt 0 ]]; do
     '-w'|'--width')      assert_num "$1" "$2"; WIDTH="$2";          shift 2 ;;
     '-W'|'--max-width')  assert_num "$1" "$2"; MAX_WIDTH="$2";      shift 2 ;;
 
-    '--demo')     DEMO="${DEMO:-1}"; shift ;;
+    '--list')
+      case "$2" in
+        'bar'|'b')    pb_list 'b'; exit 0 ;;
+        'colors'|'c') pb_list 'c'; exit 0 ;;
+        'preset'|'p') pb_list 'p'; exit 0 ;;
+        *)            pb_list 'a'; exit 0 ;;
+      esac ;;
     '--show-off')
       case "$2" in
-        'all'|'a')    DEMO='a'; shift 2 ;;
         'bar'|'b')    DEMO='b'; shift 2 ;;
         'colors'|'c') DEMO='c'; shift 2 ;;
         'preset'|'p') DEMO='p'; shift 2 ;;
+        'all'|'a')    DEMO='a'; shift 2 ;;
         *)            DEMO='a'; shift 1 ;;
       esac ;;
+    '--demo') DEMO="${DEMO:-1}"; shift ;;
 
     '-?'|'-h'|'--help') print_help; exit 0 ;;
     '--') shift; break ;;
