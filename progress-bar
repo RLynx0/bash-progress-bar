@@ -593,7 +593,7 @@ function resolve_preset {
       EMPTY_STR=' ';
       BAR_START='░';
       BAR_END='░ ';
-      STATUS_FMT='PROGRESS {perc:0<3}%';
+      STATUS_FMT='PROGRESS {perc:0>3}%';
       ;;
     'rainbow')
       resolve_colors 'pride';
@@ -601,7 +601,7 @@ function resolve_preset {
       EMPTY_STR='-';
       BAR_START='(:🮇';
       BAR_END='▏:) ';
-      STATUS_FMT='{"{done}/{todo}":>9} ({perc:3}%)'
+      STATUS_FMT='{"{done}/{todo}":^9} ({perc:3}%)'
       ;;
     *)
       {
