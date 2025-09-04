@@ -13,7 +13,7 @@ Yeah, I'm pretty proud of this. :)
     -b blocky \
     -e ']  ' \
     -c sunset \
-    -f '{"{done:0<3}/{todo:>3}": ->11} ({perc:3}%)' \
+    -f '{"{done}/{todo}":^11} ({perc:3}%)' \
     250
 ```
 
@@ -205,5 +205,11 @@ The padding behavior can get very involved and nested.
 Try to work through what this monster of an expression does, for example:
 
 ```bash
-./progress_bar --demo --status-format '{"{"done ->{"{"{done:>4}{todo:<4}":>10}":<12}<- todo":28}":>30}'
+./progress_bar --demo --status-fmt '{"{"done ->{"{"{done:<4}{todo:>4}":<10}":>12}<- todo":>28}":<30}'
+```
+
+Tip: This does pretty much the same:
+
+```bash
+./progress_bar --demo -f '{"done ->{"{done:<4}{todo:>4}":^12}<- todo":^30}'
 ```
