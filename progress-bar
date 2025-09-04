@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 DEFAULT__DEMO_TOTAL=250
 DEFAULT__BAR='minimal'
