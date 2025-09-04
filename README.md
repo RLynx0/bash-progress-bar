@@ -197,3 +197,13 @@ done | progress_bar -w 50 -W 120 -p 'fancy' -c 'cool' "$total"
 > Note that parameters are evaluated in the order they are passed in.  
 > For example, `progress_bar -c 'forest' -p 'slick'` will first load the 'forest'
 > color scheme, and then overwrite it with the color scheme from the 'slick' preset.
+
+
+## Status Format
+
+The padding behavior can get very involved and nested.
+Try to work through what this monster of an expression does, for example:
+
+```bash
+./progress_bar --demo --status-format '{"{"done ->{"{"{done:>4}{todo:<4}":>10}":<12}<- todo":28}":>30}'
+```
