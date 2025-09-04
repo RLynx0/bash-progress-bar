@@ -431,7 +431,7 @@ Options:
   -?, -h                   Show short help message and exit.
 
   --demo                   Run a demo progress bar with the current settings.
-  --list [SET]             List available presets for 'preset', 'bar', 'colors' or 'all'.
+  -l, --list [SET]         List available presets for 'preset', 'bar', 'colors' or 'all'.
   --show-off [SET]         Preview available presets for 'preset', 'bar', 'colors' or 'all'.
 EOF
 }
@@ -702,7 +702,7 @@ while [[ $# -gt 0 ]]; do
     '-w'|'--width')      assert_num "$1" "$2"; WIDTH="$2";          shift 2 ;;
     '-W'|'--max-width')  assert_num "$1" "$2"; MAX_WIDTH="$2";      shift 2 ;;
 
-    '--list')
+    '-l'|'--list')
       case "$2" in
         'bar'|'b')    pb_list 'b'; exit 0 ;;
         'colors'|'c') pb_list 'c'; exit 0 ;;
