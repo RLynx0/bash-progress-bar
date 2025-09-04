@@ -110,8 +110,8 @@ function pb_get-status-text {
       st_padding+="${st_pad_str:i % ${#st_pad_str}:1}"
     done
     case "$st_pad_side" in
-      '<'|'') st_final="${st_padding}${st_resolved}" ;;
-      '>')    st_final="${st_resolved}${st_padding}" ;;
+      '>'|'') st_final="${st_padding}${st_resolved}" ;;
+      '<')    st_final="${st_resolved}${st_padding}" ;;
     esac
 
     text="${text/"$st_match"/"$st_final"}"
