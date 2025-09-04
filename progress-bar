@@ -99,20 +99,27 @@ function pb_get-status-text {
     local st_pad_str="${BASH_REMATCH[4]:-" "}"
     local st_pad_side="${BASH_REMATCH[5]}"
 
+    local st_padding_l=''
+    local st_padding_r=''
     local st_resolved=''
-    local st_padding=''
     local st_final=''
 
     [[ "$st_expr" =~ ^\"(.+)\"$ ]] \
     && st_resolved="${BASH_REMATCH[1]}" \
     || st_resolved="${!st_expr}"
-    for ((i = 0; i < st_pad_len - ${#st_resolved}; i++)); do
-      st_padding+="${st_pad_str:i % ${#st_pad_str}:1}"
+    st_pad_len="$((st_pad_len - ${#st_resolved}))"
+
+    for ((i = 0; i < st_pad_len / 2; i++)); do
+      st_padding_l+="${st_pad_str:i % ${#st_pad_str}:1}"
     done
+    for ((; i < st_pad_len; i++)); do
+      st_padding_r+="${st_pad_str:i % ${#st_pad_str}:1}"
+    done
+
     case "$st_pad_side" in
-      '>'|'') st_final="${st_padding}${st_resolved}" ;;
-      '<')    st_final="${st_resolved}${st_padding}" ;;
-      '^')    st_final="${st_padding:0:$((${#st_padding} / 2))}${st_resolved}${st_padding:0:$(((${#st_padding} + 1) / 2))}" ;;
+      '>'|'') st_final="${st_padding_l}${st_padding_r}${st_resolved}" ;;
+      '<')    st_final="${st_resolved}${st_padding_l}${st_padding_r}" ;;
+      '^')    st_final="${st_padding_l}${st_resolved}${st_padding_r}" ;;
     esac
 
     text="${text/"$st_match"/"$st_final"}"
