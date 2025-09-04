@@ -44,7 +44,7 @@ function pb_reset-vars {
 
 function hexlerp {
   local a="$1"; local b="$2"; local step="$3"; local steps="$4"
-  echo "$((10#${a} + (16#${b} - 16#${a}) * step / steps))"
+  echo "$((16#${a} + (16#${b} - 16#${a}) * step / steps))"
 }
 
 function pb_get-color {
