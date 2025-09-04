@@ -92,7 +92,7 @@ function pb_get-status-text {
   local perc="$((done * 100 / todo))"
   local text="$STATUS_FMT"
 
-  while [[ "$text" =~ \{([a-zA-Z_][a-zA-Z0-9_]*|\"[^\{\"]+\")(:(([<>])?|(.+)([<>]))([0-9]+))?\} ]]; do
+  while [[ "$text" =~ \{([a-zA-Z_][a-zA-Z0-9_]*|\"[^\{\"]+\")(:(([<>])?|([^\}]+)([<>]))([0-9]+))?\} ]]; do
     local st_match="${BASH_REMATCH[0]}"
     local st_expr="${BASH_REMATCH[1]}"
     local st_pad_len="${BASH_REMATCH[7]:-0}"
@@ -412,6 +412,7 @@ function print_help {
   echo "  $CALLNAME --colors '#FF0000;#00FF00;#0000FF' 75"
   echo "  $CALLNAME --bar '.*|' --width 40 --demo"
   echo "  $CALLNAME --demo -p bare -c matrix -b 0123456789 -W 10"
+  echo "  $CALLNAME --demo -b 'CCCCccccccccCCCC ' -E ' ⚬ ' -c yellow -w 25 2500"
   echo "  $CALLNAME --show-off -w 50"
 }
 
@@ -623,11 +624,11 @@ while [[ $# -gt 0 ]]; do
     '--demo')     DEMO="${DEMO:-1}"; shift ;;
     '--show-off')
       case "$2" in
-        'all'|'a')     DEMO='a'; shift 2 ;;
-        'bar'|'b')     DEMO='b'; shift 2 ;;
-        'colors'|'c')  DEMO='c'; shift 2 ;;
-        'presets'|'p') DEMO='p'; shift 2 ;;
-        *)             DEMO='a'; shift 1 ;;
+        'all'|'a')    DEMO='a'; shift 2 ;;
+        'bar'|'b')    DEMO='b'; shift 2 ;;
+        'colors'|'c') DEMO='c'; shift 2 ;;
+        'preset'|'p') DEMO='p'; shift 2 ;;
+        *)            DEMO='a'; shift 1 ;;
       esac ;;
 
     '-?'|'-h'|'--help') print_help; exit 0 ;;
