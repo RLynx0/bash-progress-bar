@@ -13,7 +13,7 @@ Yeah, I'm pretty proud of this. :)
     -b blocky \
     -e ']  ' \
     -c sunset \
-    -f '{"{done}/{todo}": ->11} ({perc:3}%)' \
+    -f '{"{done:3}/{todo:>3}": ->11} ({perc:3}%)' \
     250
 ```
 
