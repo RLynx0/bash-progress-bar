@@ -1,7 +1,8 @@
 # Showing Off
 
 In this repository's root directory, invoke the following code for a display of what this script is capable of.  
-It displays gradients, updating multiple bars at once, sub-character progress bar updates and self-padding string formatting.  
+It displays gradients, updating multiple bars at once, scaling to 32% of the terminal,
+sub-character progress bar updates and self-padding string formatting.  
 Yeah, I'm pretty proud of this. :)
 
 ```sh
@@ -12,8 +13,25 @@ Yeah, I'm pretty proud of this. :)
     -b blocky \
     -e ']  ' \
     -c sunset \
-    -f '{"{done}/{todo}":>11} ({perc:3}%)' \
+    -f '{"{done}/{todo}": ->11} ({perc:3}%)' \
     250
+```
+
+You can also pass the `--show-off` flag to compare different builtin presets.  
+`--show-off` can optionally take one of these arguments:
+- `all` or `a` : This is the default beaviour - Show off everything.
+- `preset` or `p`: Show off available presets for full configurations.
+- `colors` or `c`: Show off predefined color settings.
+- `bar` or `b`: Show off predefined bar settings.
+
+If you don't want to sit through having every available preset animated for you,
+but still want to see them all, set a small total like `1`.
+This will essentially print all the bars in just two steps: `0%` completion and `100%` completion.
+The latter step might still be rather slow for wide bars with more than one color.
+I guess that's just what I get for printing 180 ANSII codes in a single `echo`.
+
+```bash
+./progress_bar --show-off --width 40 1
 ```
 
 # Usage
@@ -33,7 +51,7 @@ This snippet provides a more concrete example of how the script can be used.
 total=100
 for ((i = 0; i <= total; i++)); do
   echo $i
-done | progress_bar $total
+done | ./progress_bar $total
 ```
 
 
@@ -46,13 +64,14 @@ While shuffled input may be pretty laggy due to drawing gradients, it's fully su
 total=1000
 for ((i = 0; i <= total; i += 23)); do
   echo $i
-done | shuf | progress_bar $total # Kinda useless, but totally fine!
+done | shuf | ./progress_bar $total # Kinda useless, but totally fine!
 ```
 
 > Note that `progress_bar` will clamp input between 0% and 100%.
 > For example, if `total` is `4000`, and `5000` is received through `stdin`,
 > the output will look as though `4000` had been piped in instead.
-> Any non-integer input will be ignored entirely.
+> Negative input will also be clamped to `0`.
+> Any invalid input will be ignored entirely.
 
 
 For testing purposes, you can pass the `--demo` argument.
@@ -60,11 +79,38 @@ This will simulate piping an ordered series of integers to `progress_bar`.
 
 ```sh
 # Animates a progress bar from 0 to 250
-progress_bar --demo
+./progress_bar --demo
 
 # Or up to a specified total like 1000
-progress_bar --demo 1000
+./progress_bar --demo 1000
 ```
+
+## Complex Input
+`progress_bar` supports a bit more than just plain integers as input.
+
+Instead of providing an absolute value, you can tell `progress_bar` to increment or decrement the
+current bar by passing in `+<increment>` or `-<decremen>`.
+
+If you need to, you can also set the `total` value of the bar to a new number by appending `/<total>` to an input.
+For example, the input `+0/500` will set the `total` of the bar to `500` while preserving the previous `completed` value.
+
+`progress_bar` is also capable of maintaining multiple bars at once.
+Any input can be redirected to a specific bar by prefixing it with `<index>:`.
+If no index is supplied, the previously targeted bar will receive the input.
+The first bar has index `0`.
+
+This snippet will print 3 bars at once:
+
+```bash
+    for ((i = 0; i <= 100; i++)); do
+        echo "0:${i}"
+        echo "1:${i}"
+        echo "2:${i}"
+    done | ./progress_bar 100
+```
+
+> Note: You cannot target a negative index!
+> Bar `0` will always be the first bar.
 
 
 ## CLI Options
