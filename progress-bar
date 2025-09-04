@@ -20,6 +20,7 @@ STATUS_FMT="${STATUS_FMT:-"$DEFAULT__STATUS_FMT"}"
 WIDTH="${WIDTH:-"$DEFAULT__WIDTH"}"
 MAX_WIDTH="${MAX_WIDTH:-"$DEFAULT__MAX_WIDTH"}"
 INTERVAL="${INTERVAL:-"$DEFAULT__INTERVAL"}"
+SIZE_STRICT=''
 
 CALLNAME="${0##*/}"
 BARCHARS=('#')
@@ -153,11 +154,7 @@ function pb_print-bar {
   local index="$1"
   local done="$2"
   local todo="$3"
-
-  # Return early depending on interval
-  [ "$((done % INTERVAL))" -eq 0 ] \
-  || [ "$done" -eq "$todo" ] \
-  || return
+  local width="$4"
 
   # Sanity checks
   [ "$todo" -le 0 ] && todo=1
@@ -280,35 +277,40 @@ function pb_animate-progress-bars {
   local i; local n
   local nb=1
 
-  while read x; do
-    x="${x// /}"
-    [[ "$x" =~ ^([0-9]+:)?[+-]?[0-9]+(/[1-9][0-9]*)?$ ]] \
-    && [ -n "$x" ] || continue;
+  while read -s xs; do
+    xs="${xs// /}"
+    xs="${xs//;/ }"
+    for x in $xs; do
+      [[ "$x" =~ ^(([0-9]+):)?([+-]?[0-9]+)(/([1-9][0-9]*))?$ ]] || continue
+      i="${BASH_REMATCH[2]:-"$bar_index"}"
+      totals["$i"]="${BASH_REMATCH[5]:-"$1"}"
+      values["$i"]="${values["$i"]:-0}"
+      n="${BASH_REMATCH[3]}"
 
-    [[ "$x" =~ : ]] && i="${x%:*}" || i="$bar_index"
-    [[ "$x" =~ / ]] && totals["$i"]="${x#*/}"
-    totals["$i"]="${totals["$i"]:-"$1"}"
-    values["$i"]="${values["$i"]:-0}"
+      if [[ "$n" =~ \+ ]]; then
+        n="$((values[i] + ${n#\+}))"
+      elif [[ "$n" =~ - ]]; then
+        n="$((values[i] - ${n#-}))"
+      fi
 
-    n="${x#*:}"; n="${n%/*}"
-    if [[ "$n" =~ \+ ]]; then
-      n="$((values[i] + ${n#\+}))"
-    elif [[ "$n" =~ - ]]; then
-      n="$((values[i] - ${n#-}))"
-    fi
+      # Skip depending on interval
+      [ "$((n % INTERVAL))" -eq 0 ] \
+      || [ "$n" -ge "${totals["$i"]}" ] \
+      || continue
 
-    local s=''
-    while [ "$nb" -le "$i" ]; do
-      nb=$((nb + 1))
-      bar_index=$((bar_index + 1))
-      s+="\n"
+      local s=''
+      while [ "$nb" -le "$i" ]; do
+        nb=$((nb + 1))
+        bar_index=$((bar_index + 1))
+        s+="\n"
+      done
+
+      echo -en "$(pb_move-vertical $((i - bar_index)))$s"
+      pb_print-bar "$i" "$n" "${totals["$i"]}"
+
+      values["$i"]="$n"
+      bar_index="$i"
     done
-
-    echo -en "$(pb_move-vertical $((i - bar_index)))$s"
-    pb_print-bar "$i" "$n" "${totals["$i"]}"
-
-    values["$i"]="$n"
-    bar_index="$i"
   done
 
   for ((i = bar_index; i < nb; i++)); do echo; done
@@ -447,7 +449,7 @@ Examples:
   $CALLNAME --colors '#FF0000;#00FF00;#0000FF' 75
   $CALLNAME --bar '.*|' --width 40 --demo
   $CALLNAME --demo -p bare -c matrix -b 0123456789 -W 10
-  $CALLNAME --demo -b 'CCCCccccccccCCCC ' -E ' ⚬ ' -c yellow -w 25 2500
+  $CALLNAME --demo -b 'CCCCccccccccCCCC ' -E ' o ' -c yellow -w 25 2500
   $CALLNAME --show-off -w 50
 
 Input and multi-bar usage:
