@@ -312,43 +312,53 @@ function pb_demo {
 }
 
 function pb_show-off {
-  local total="$1"
+  local mode="$1"
+  local total="$2"
   
-  echo '╔═════════════════════╗'
-  echo '║ Showing off PRESETS ║'
-  echo '╚═════════════════════╝'
-  for demo_preset in "${PRESET_NAMES[@]}"; do
-    resolve_preset "$demo_preset"
-    echo -e "\n=>> Option: --preset '$demo_preset'"
-    pb_reset-vars; pb_demo "$total"
-  done
+  if [ "$mode" == 'a' ] || [ "$mode" == 'p' ]; then
+    echo '╔═════════════════════╗'
+    echo '║ Showing off PRESETS ║'
+    echo '╚═════════════════════╝'
+    for demo_preset in "${PRESET_NAMES[@]}"; do
+      resolve_preset "$demo_preset"
+      echo -e "\n=>> Option: --preset '$demo_preset'"
+      pb_reset-vars; pb_demo "$total"
+    done
+  fi
 
-  echo -e '\n'
-  resolve_preset 'bare'
-  STATUS_FMT='{done}/{todo}'
-  BAR_END=' '; EMPTY_STR='-'
-  echo '╔═════════════════════════╗'
-  echo '║ Showing off BAR-PRESETS ║'
-  echo '╚═════════════════════════╝'
-  for demo_bar in "${BAR_PRESET_NAMES[@]}"; do
-    resolve_bar "$demo_bar"
-    echo -e "\n=>> Option: --bar '$demo_bar'"
-    echo "==> Equals: --bar '$(printf "%s" "${BARCHARS[@]}")'"
-    pb_reset-vars; pb_demo "$total"
-  done
+  [ "$mode" == 'a' ] && echo -e '\n'
+  if [ "$mode" == 'a' ] || [ "$mode" == 'b' ]; then
+    resolve_preset 'bare'
+    STATUS_FMT='{done}/{todo}'
+    BAR_END=' '; EMPTY_STR='-'
+    echo '╔═════════════════════════╗'
+    echo '║ Showing off BAR-PRESETS ║'
+    echo '╚═════════════════════════╝'
+    for demo_bar in "${BAR_PRESET_NAMES[@]}"; do
+      resolve_bar "$demo_bar"
+      echo -e "\n=>> Option: --bar '$demo_bar'"
+      echo "==> Equals: --bar '$(printf "%s" "${BARCHARS[@]}")'"
+      pb_reset-vars; pb_demo "$total"
+    done
+  fi
 
-  echo -e '\n'
-  resolve_bar 'smooth'
-  echo '╔═══════════════════════════╗'
-  echo '║ Showing off COLOR-PRESETS ║'
-  echo '╚═══════════════════════════╝'
-  for demo_color in "${COLOR_PRESET_NAMES[@]}"; do
-    resolve_colors "$demo_color"
-    echo -e "\n=>> Option: --colors '$demo_color'"
-    [ "${#GRADIENT[@]}" -gt 0 ] \
-    && echo "==> Equals: --colors '$(printf "#%s;" "${GRADIENT[@]}")'"
-    pb_reset-vars; pb_demo "$total"
-  done
+  [ "$mode" == 'a' ] && echo -e '\n'
+  if [ "$mode" == 'a' ] || [ "$mode" == 'c' ]; then
+    resolve_preset 'bare'
+    resolve_bar 'smooth'
+    STATUS_FMT='{done}/{todo}'
+    BAR_END=' '; EMPTY_STR='-'
+    echo '╔═══════════════════════════╗'
+    echo '║ Showing off COLOR-PRESETS ║'
+    echo '╚═══════════════════════════╝'
+    for demo_color in "${COLOR_PRESET_NAMES[@]}"; do
+      resolve_colors "$demo_color"
+      echo -e "\n=>> Option: --colors '$demo_color'"
+      [ "${#GRADIENT[@]}" -gt 0 ] \
+      && echo "==> Equals: --colors '$(printf "#%s;" "${GRADIENT[@]}")'"
+      pb_reset-vars; pb_demo "$total"
+    done
+  fi
 }
 
 function print_help {
@@ -609,8 +619,16 @@ while [[ $# -gt 0 ]]; do
     '-i'|'--interval')   assert_num "$1" "$2"; INTERVAL="$2";       shift 2 ;;
     '-w'|'--width')      assert_num "$1" "$2"; WIDTH="$2";          shift 2 ;;
     '-W'|'--max-width')  assert_num "$1" "$2"; MAX_WIDTH="$2";      shift 2 ;;
-    '--show-off') DEMO='ALL';        shift ;;
+
     '--demo')     DEMO="${DEMO:-1}"; shift ;;
+    '--show-off')
+      case "$2" in
+        'all'|'a')     DEMO='a'; shift 2 ;;
+        'bar'|'b')     DEMO='b'; shift 2 ;;
+        'colors'|'c')  DEMO='c'; shift 2 ;;
+        'presets'|'p') DEMO='p'; shift 2 ;;
+        *)             DEMO='a'; shift 1 ;;
+      esac ;;
 
     '-?'|'-h'|'--help') print_help; exit 0 ;;
     '--') shift; break ;;
@@ -643,9 +661,9 @@ if [ -n "$total" ] && ! [[ "$total" =~ ^[0-9]+$ ]]; then
   exit 1
 fi
 
-if   [ "$DEMO" == 'ALL' ]; then pb_show-off $total
-elif [ -n "$DEMO"       ]; then pb_demo $total
-elif [ -n "$total"  ]; then pb_animate-progress-bars $total
+if   [ "$DEMO" == '1' ]; then pb_demo "$total"
+elif [ -n "$DEMO"     ]; then pb_show-off "$DEMO" "$total"
+elif [ -n "$total"    ]; then pb_animate-progress-bars "$total"
 else
   echo "Usage: $CALLNAME [OPTIONS] TOTAL" >&2
   echo "Pass the --help flag for details" >&2
