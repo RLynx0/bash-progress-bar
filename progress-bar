@@ -415,28 +415,28 @@ function print_short_help {
        $CALLNAME [OPTIONS] --show-off [SET] [TOTAL]
 
 Arguments:
-  TOTAL     Total count for the progress bar (non-negative integer).
-            Required unless --help, --list, --demo or --show-off is given.
-            Defaults to '$DEFAULT__DEMO_TOTAL' for --demo and --show-off.
+  TOTAL   Total count for the progress bar (non-negative integer).
+          Required unless --help, --list, --demo or --show-off is given.
+          Defaults to '$DEFAULT__DEMO_TOTAL' for --demo and --show-off.
 
 Options:
-  -p, --preset NAME        Apply a style preset.
-  -c, --colors LIST        Gradient of hex colors or preset name.             Default: '$DEFAULT__COLORS'
-  -b, --bar NAME           Characters used to fill the bar or preset name.    Default: '$DEFAULT__BAR'
-  -E, --empty-str STR      Pattern used to pad empty space in the bar.        Default: '$DEFAULT__EMPTY_STR'
-  -s, --bar-start STR      String shown before the bar.                       Default: '$DEFAULT__BAR_START'
-  -e, --bar-end STR        String shown after the bar.                        Default: '$DEFAULT__BAR_END'
-  -f, --status-fmt STR     Format string for status.                          Default: '$DEFAULT__STATUS_FMT'
-  -i, --interval N         Update only if input is divisible by N.            Default: '$DEFAULT__INTERVAL'
-  -w, --width PERCENT      Set bar width as percentage of terminal width.     Default: '$DEFAULT__WIDTH'
-  -W, --max-width COLS     Maximum bar width in columns.                      Default: '$DEFAULT__MAX_WIDTH'
-  -S, --size-strict        Prevent overflowing width constraints.
-  --help                   Show detailed help message and exit.
-  -?, -h                   Show short help message and exit.
+  -p, --preset NAME       Apply a style preset.
+  -c, --colors LIST       Gradient of hex colors or preset name.             Default: '$DEFAULT__COLORS'
+  -b, --bar NAME          Characters used to fill the bar or preset name.    Default: '$DEFAULT__BAR'
+  -E, --empty-str STR     Pattern used to pad empty space in the bar.        Default: '$DEFAULT__EMPTY_STR'
+  -s, --bar-start STR     String shown before the bar.                       Default: '$DEFAULT__BAR_START'
+  -e, --bar-end STR       String shown after the bar.                        Default: '$DEFAULT__BAR_END'
+  -f, --status-fmt STR    Format string for status.                          Default: '$DEFAULT__STATUS_FMT'
+  -i, --interval N        Update only if input is divisible by N.            Default: '$DEFAULT__INTERVAL'
+  -w, --width PERCENT     Set bar width as percentage of terminal width.     Default: '$DEFAULT__WIDTH'
+  -W, --max-width COLS    Maximum bar width in columns.                      Default: '$DEFAULT__MAX_WIDTH'
+  -S, --size-strict       Prevent overflowing width constraints.
+  --help                  Show detailed help message and exit.
+  -?, -h                  Show short help message and exit.
 
-  --demo                   Run a demo progress bar with the current settings.
-  -l, --list [SET]         List available presets for 'preset', 'bar', 'colors' or 'all'.
-  --show-off [SET]         Preview available presets for 'preset', 'bar', 'colors' or 'all'."
+  --demo                  Run a demo progress bar with the current settings.
+  -l, --list [SET]        List available presets for 'preset', 'bar', 'colors' or 'all'.
+  --show-off [SET]        Preview available presets for 'preset', 'bar', 'colors' or 'all'."
 }
 
 function print_long_help {
@@ -456,15 +456,15 @@ Input and multi-bar usage:
   It supports updating multiple bars at once.
   Input lines can look like this:
 
-    N               Set progress of the current bar to N.
-    N/M             Set progress of the current bar to N out of M.
-    I:N             Update bar with index I to N.
-    I:N/M           Update bar I to N out of M.
-    I:+D            Increment bar I by D.
-    I:-D            Decrement bar I by D.
+    N        Set progress of the current bar to N.
+    N/M      Set progress of the current bar to N out of M.
+    I:N      Update bar with index I to N.
+    I:N/M    Update bar I to N out of M.
+    I:+D     Increment bar I by D.
+    I:-D     Decrement bar I by D.
 
   Example:
-   printf '%s\n' '0:20' '1:60/200' '0:+5' '1:+10' | $CALLNAME 100
+    printf '%s\n' '0:20' '1:60/200' '0:+5' '1:+10' | $CALLNAME 100
 
   This will print two bars, then increment bar 0 by 5 and bar 1 by 10.
   TOTAL=100 is only used for bar 0, since the second line specifies a total.
@@ -478,18 +478,18 @@ Status format:
   It supports variable substitution and optional padding/alignment.
 
   Variables:
-    {done}   Number of completed steps.
-    {todo}   Total number of steps.
-    {perc}   Percentage (integer).
+    {done}    Number of completed steps.
+    {todo}    Total number of steps.
+    {perc}    Percentage (integer).
 
   You can also insert sub-strings with {"..."}.
   These can include nested variables.
 
   Padding and alignment:
-    {EXPR:N}, {EXPR:>N}  Right-align EXPR in width N.
-    {EXPR:<N}            Left-align EXPR in width N.
-    {EXPR:^N}            Center-align EXPR in width N.
-    {EXPR:PAD>N}         Use PAD as the padding string instead of spaces.
+    {EXPR:N}, {EXPR:>N}    Right-align EXPR in width N.
+    {EXPR:<N}              Left-align EXPR in width N.
+    {EXPR:^N}              Center-align EXPR in width N.
+    {EXPR:PAD>N}           Use PAD as padding instead of spaces.
 
   Examples:
     $CALLNAME --demo --status-fmt 'static status'
