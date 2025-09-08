@@ -437,10 +437,9 @@ Options:
 }
 
 function print_long_help {
-  echo "A highly customizable, pure bash, multi-bar progress indicator for shell scripts.
-
-$(print_short_help)
-
+  echo -e "A highly customizable, pure bash, multi-bar progress indicator for shell scripts.\n"
+  print_short_help
+  echo "
 Examples:
   $CALLNAME -p rainbow 50
   $CALLNAME --colors '#FF0000;#00FF00;#0000FF' 75
