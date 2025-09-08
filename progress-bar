@@ -154,7 +154,7 @@ function pb_print-bar {
   local index="$1"
   local done="$2"
   local todo="$3"
-  local width="$4"
+  local cols="$4"
 
   # Sanity checks
   [ "$todo" -le 0 ] && todo=1
@@ -162,15 +162,18 @@ function pb_print-bar {
   [ "$done" -gt "$todo" ] && done="$todo"
 
   # Get terminal space and reserved area length
-  local cols="${COLUMNS:-$(tput cols)}"
   local status_text="$(pb_get-status-text "$done" "$todo")"
   local final_status="$(pb_get-status-text "$todo" "$todo")"
   local reserved="$((${#BAR_START} + ${#BAR_END} + ${#final_status} + 1))"
+  cols="${COLUMNS:-$(tput cols)}" # TEMP
 
-  # Scale cols to width-perc and max-width
-  [ "$WIDTH" -le 100 ] && cols=$((cols * WIDTH / 100))
-  [ -n "$MAX_WIDTH" ] && [ "$cols" -gt "$MAX_WIDTH" ] && cols="$MAX_WIDTH"
-  [ "$cols" -lt "$reserved" ] && cols="$reserved"
+  # Calculcate bar_width from cols, width-perc and max-width
+  local bar_width="$cols"
+  [ "$WIDTH" -le 100 ] && bar_width=$((bar_width * WIDTH / 100))
+  [ -n "$MAX_WIDTH" ] && [ "$bar_width" -gt "$MAX_WIDTH" ] && bar_width="$MAX_WIDTH"
+  [ -n "$SIZE_STRICT" ] && bar_width="$((bar_width - reserved))"
+  [ "$((bar_width + reserved))" -gt "$cols" ] && bar_width="$((cols - reserved))"
+  [ "$bar_width" -lt 0 ] && bar_width=0
 
   # Last status_text and bar_perc
   local last_status_text="${pb_last_status_texts["$index"]}"
@@ -183,8 +186,7 @@ function pb_print-bar {
 
   # Variables related to the actual bar
   local bfactor="${#BARCHARS[@]}"
-  local available="$((cols - reserved))"
-  local full_bar="$((available * bfactor))"
+  local full_bar="$((bar_width * bfactor))"
   local bar_perc="$((done * full_bar / todo))"
   local sub_i="$((bar_perc % bfactor))"
 
@@ -207,7 +209,7 @@ function pb_print-bar {
   if [ "${pb_last_totals["$index"]}" != "$todo" ]; then
     # Terminal window changed -> Redraw everything
     pb_last_totals["$index"]="$todo"
-    draw_empty_to="$available"
+    draw_empty_to="$bar_width"
     pb_last_cols="$cols"
     last_bar_perc=0
     draw_to_bar=1
@@ -215,14 +217,14 @@ function pb_print-bar {
   elif [ "$last_bar_perc" -lt "$bar_perc" ]; then
     # Only progress changed -> Add new bar-characters
     # Calculate cursor offset to overwrite only the changed section
-    ma="$((ma - ${#BAR_END} - available + (last_bar_perc / bfactor)))"
+    ma="$((ma - ${#BAR_END} - bar_width + (last_bar_perc / bfactor)))"
     mc="$((mc + (full_bar - bar_perc) / bfactor + ${#BAR_END}))"
     draw_to_bar=1
   elif [ "$last_bar_perc" -gt "$bar_perc" ]; then
     # Redraw bar section cleanly
-    ma="$((ma - ${#BAR_END} - available + (bar_perc / bfactor)))"
+    ma="$((ma - ${#BAR_END} - bar_width + (bar_perc / bfactor)))"
     draw_empty_to="$(((last_bar_perc + bfactor - 1) / bfactor))"
-    mc="$((mc + available - draw_empty_to + ${#BAR_END}))"
+    mc="$((mc + bar_width - draw_empty_to + ${#BAR_END}))"
     last_bar_perc="$bar_perc"
     draw_to_bar=1
   fi
@@ -425,9 +427,10 @@ Options:
   -s, --bar-start STR      String shown before the bar.                       Default: '$DEFAULT__BAR_START'
   -e, --bar-end STR        String shown after the bar.                        Default: '$DEFAULT__BAR_END'
   -f, --status-fmt STR     Format string for status.                          Default: '$DEFAULT__STATUS_FMT'
+  -i, --interval N         Update only if input is divisible by N.            Default: '$DEFAULT__INTERVAL'
   -w, --width PERCENT      Set bar width as percentage of terminal width.     Default: '$DEFAULT__WIDTH'
   -W, --max-width COLS     Maximum bar width in columns.                      Default: '$DEFAULT__MAX_WIDTH'
-  -i, --interval N         Update only if input is divisible by N.            Default: '$DEFAULT__INTERVAL'
+  -S, --size-strict        Prevent overflowing width constraints.
   --help                   Show detailed help message and exit.
   -?, -h                   Show short help message and exit.
 
@@ -699,6 +702,7 @@ while [[ $# -gt 0 ]]; do
     '-w'|'--width')      assert_num "$1" "$2"; WIDTH="$2";          shift 2 ;;
     '-W'|'--max-width')  assert_num "$1" "$2"; MAX_WIDTH="$2";      shift 2 ;;
 
+    '-S'|'--size-strict') SIZE_STRICT='1'; shift 1 ;;
     '-l'|'--list')
       case "$2" in
         'bar'|'b')    pb_list 'b'; exit 0 ;;
@@ -714,11 +718,10 @@ while [[ $# -gt 0 ]]; do
         'all'|'a')    DEMO='a'; shift 2 ;;
         *)            DEMO='a'; shift 1 ;;
       esac ;;
-    '--demo') DEMO="${DEMO:-1}"; shift ;;
-
+    '--demo') DEMO="${DEMO:-1}"; shift 1 ;;
     '-?'|'-h') print_short_help; exit 0 ;;
     '--help') print_long_help; exit 0 ;;
-    '--') shift; break ;;
+    '--') shift 1; break ;;
     *)
       if [[ "$1" =~ ^-+.* ]]; then
         echo "Unknown option: '$1'" >&2
