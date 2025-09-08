@@ -117,70 +117,24 @@ This snippet will print 3 bars at once:
 
 ## CLI Options
 
-```bash
-# --preset; -p
-progress-bar --preset fast  # COLORS='none';  BAR='minimal'; EMPTY_CHAR=' '; BAR_START='[';           BAR_END='] ';   STATUS_FORMAT='{perc}%'
-progress-bar --preset slick # COLORS='cool';  BAR='blocky';  EMPTY_CHAR='-'; BAR_START='[';           BAR_END='] ';   STATUS_FORMAT='{done}/{todo}'
-progress-bar --preset fancy # COLORS='pride'; BAR='smooth';  EMPTY_CHAR='-'; BAR_START='PROGRESS :▕'; BAR_END='▏:: '; STATUS_FORMAT='{done}/{todo} ({perc}%)'
+| Option             | Shorthand  | Description                                                       | Default     |
+|--------------------|------------|-------------------------------------------------------------------|-------------|
+| `--preset NAME`    | `-p`       | Applay a style preset.                                            | --          |
+| `--colors LIST`    | `-c`       | Gradient of hex colors or preset name.                            | `'none'`    |
+| `--bar CHARS`      | `-b`       | Characters used to fill the bar or preset name.                   | `'minimal'` |
+| `--empty-str STR`  | `-E`       | Pattern used to pad empty space in the bar.                       | `' '`       |
+| `--bar-start STR`  | `-s`       | String shown before the bar.                                      | `'['`       |
+| `--bar-end STR`    | `-e`       | String shown after the bar.                                       | `'] '`      |
+| `--status-fmt STR` | `-f`       | Format string for status.                                         | `'{perc}%'` |
+| `--interval N`     | `-i`       | Update only if input is divisible by N.                           | `'1'`       |
+| `--width PERCENT`  | `-w`       | Set bar width as percentage of terminal width.                    | `'100'`     |
+| `--max-width COLS` | `-W`       | Maximum bar width in columns.                                     | `''`        |
+| `--size-strict`    | `-S`       | Prevent overflowing width constraints.                            | --          |
+| `--list [SET]`     | `-l`       | List available presets for `preset`, `bar`, `colors` or `all`.    | --          |
+| `--show-off [SET]` | --         | Preview available presets for `preset`, `bar`, `colors` or `all`. | --          |
+| `--demo`           | --         | Run a demo progress bar with the current settings.                | --          |
+| `--help`           | `-?`, `-h` | Show help message and exit.                                       | --          |
 
-# --colors; -c; COLORS="${COLORS:-'none'}"
-# Gradient that the filled bar will be rendered with
-progress-bar --colors none               # GRADIENT=()
-progress-bar --colors cool               # GRADIENT=('60C0C0' 'C080D8')
-progress-bar --colors pride              # GRADIENT=('CC2222' 'CCCC22' '22CC22' '22CCCC' '2222CC' 'CC22CC')
-progress-bar --colors 'CC22CC,CC2222'    # GRADIENT=('CC22CC' 'CC2222')
-progress-bar --colors '#CC22CC, #CC2222' # GRADIENT=('CC22CC' 'CC2222')
-
-# --bar; -b; BAR="${BAR:-'minimal'}"
-# Characters used to render filled parts of the bar
-progress-bar --bar minimal # BARCHARS=('#')
-progress-bar --bar blocky  # BARCHARS=('>' '%' '#')
-progress-bar --bar smooth  # BARCHARS=('▏' '▎' '▍' '▌' '▋' '▊' '▉' '█')
-progress-bar --bar '.:!|'  # BARCHARS=('.' ':' '!' '|')
-
-# --empty-char; -E; EMPTY_CHAR="${EMPTY_CHAR:-' '}"
-# Character used to render empty parts of the bar
-progress-bar --empty-char ' '
-progress-bar --empty-char '-'
-
-# --bar-start; -s; BAR_START="${BAR_START:-'['}"
-# Static string rendered right before the bar
-progress-bar --bar-start ''
-progress-bar --bar-start '['
-progress-bar --bar-start 'PROGRESS :▕'
-
-# --bar-end; -e; BAR_END="${BAR_END:-'] '}"
-# Static string rendered right after the bar
-progress-bar --bar-end ''
-progress-bar --bar-end '] '
-progress-bar --bar-end '▏:: '
-
-# --status-format; -f; STATUS_FORMAT="${STATUS_FORMAT:-'{perc}%'}"
-# Dynamic string rendered after the very right of the output
-# Can use the following tokens:
-# - `{done}` : Number of completed steps
-# - `{todo}` : Total number of defined steps
-# - `{perc}` : The current completion percentage
-progress-bar --status-fmt ''
-progress-bar --status-fmt '{perc}%'
-progress-bar --status-fmt '{done}/{todo} ({perc}%)'
-
-# --width; -w; WIDTH="${WIDTH:-'100'}"
-# Percentage of terminal width the bar will take up
-progress-bar --width 75
-
-# --max-width; -W; MAX_WIDTH="${MAX_WIDTH:-''}"
-# Maximum columns the bar will take up
-progress-bar --max-width 120
-
-# --interval; -i; INTERVAL="${INTERVAL:-'1'}"
-# Render only for every nth input
-progress-bar --interval 1
-progress-bar --interval 100
-
-# --demo
-progress-bar --demo
-```
 
 The following snippet renders a progress bar that
 - takes up 50% of the terminal width
