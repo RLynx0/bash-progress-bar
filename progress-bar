@@ -407,8 +407,7 @@ function pb_show-off {
 }
 
 function print_short_help {
-  cat <<EOF
-Usage: $CALLNAME [OPTIONS] TOTAL
+  echo "Usage: $CALLNAME [OPTIONS] TOTAL
        $CALLNAME [OPTIONS] --list [SET]
        $CALLNAME [OPTIONS] --demo [TOTAL]
        $CALLNAME [OPTIONS] --show-off [SET] [TOTAL]
@@ -434,13 +433,11 @@ Options:
 
   --demo                   Run a demo progress bar with the current settings.
   -l, --list [SET]         List available presets for 'preset', 'bar', 'colors' or 'all'.
-  --show-off [SET]         Preview available presets for 'preset', 'bar', 'colors' or 'all'.
-EOF
+  --show-off [SET]         Preview available presets for 'preset', 'bar', 'colors' or 'all'."
 }
 
 function print_long_help {
-  cat <<EOF
-A highly customizable, pure bash, multi-bar progress indicator for shell scripts.
+  echo "A highly customizable, pure bash, multi-bar progress indicator for shell scripts.
 
 $(print_short_help)
 
@@ -495,8 +492,7 @@ Status format:
   Examples:
     $CALLNAME --demo --status-fmt 'static status'
     $CALLNAME --demo -f '{done}/{todo} ({perc}%)'
-    $CALLNAME --demo -f '{"{done}/{todo}":^9} ({perc:3}%)'
-EOF
+    $CALLNAME --demo -f '{"{done}/{todo}":^9} ({perc:3}%)'"
 }
 
 function assert_arg {
