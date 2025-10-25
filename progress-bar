@@ -349,7 +349,7 @@ function pb_list {
     echo 'Available BAR-PRESETS (--bar):'
     for demo_bar in "${BAR_PRESET_NAMES[@]}"; do
       resolve_bar "$demo_bar"
-      echo -n "  $(pb_pad "$demo_bar" ' ' '<' 12)"
+      echo -n "  $(pb_pad "$demo_bar" ' ' '<' 16)"
       echo "--bar '$(printf "%s" "${BARCHARS[@]}")'"
     done
   fi
@@ -359,9 +359,9 @@ function pb_list {
     echo 'Available COLOR-PRESETS (--colors):'
     for demo_colors in "${COLOR_PRESET_NAMES[@]}"; do
       resolve_colors "$demo_colors"
-      echo -n "  $(pb_pad "$demo_colors" ' ' '<' 12)"
+      echo -n "  $(pb_pad "$demo_colors" ' ' '<' 16)"
       [ "${#GRADIENT}" -eq 0 ] && echo \
-      || echo "--colors '$(printf "#%s;" "${GRADIENT[@]}")'"
+      || echo "--colors '$(printf "%s;" "${GRADIENT[@]}")'"
     done
   fi
 }
@@ -418,7 +418,7 @@ function pb_show-off {
       resolve_colors "$demo_color"
       echo -e "\n=>> Option: --colors '$demo_color'"
       [ "${#GRADIENT[@]}" -gt 0 ] \
-      && echo "==> Equals: --colors '$(printf "#%s;" "${GRADIENT[@]}")'"
+      && echo "==> Equals: --colors '$(printf "%s;" "${GRADIENT[@]}")'"
       pb_reset-vars; pb_demo "$total"
     done
   fi
