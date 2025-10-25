@@ -48,6 +48,17 @@ function hexlerp {
   echo "$((16#${a} + (16#${b} - 16#${a}) * step / steps))"
 }
 
+function pb_get-simple-color {
+  local col_index="$((16#${1}))"
+  [ "$col_index" -lt 8 ] \
+  && col_index="$((col_index + 30))" \
+  || col_index="$((col_index + 90 - 8))"
+  local color="\033[${col_index}m"
+  [ "$color" == "$pb_last_color" ] && echo '' && return
+  pb_last_color="$color"
+  echo "$color"
+}
+
 function pb_get-color {
   local cur="$(($1 - 1))"
   local last="$(($2 - 1))"
@@ -58,6 +69,10 @@ function pb_get-color {
   local lerp_val="$((grad_full_i % last))"
   local i="$(((grad_full_i / last) % n_colors))"
   local j="$(((i + 1) % n_colors))"
+
+  [[ "${GRADIENT["$i"]}" =~ ^[a-FA-F0-9]$ ]] \
+  && pb_get-simple-color "${GRADIENT["$i"]}" \
+  && return
 
   local c0; local c1
   local r; local g; local b
@@ -421,7 +436,7 @@ Arguments:
 
 Options:
   -p, --preset NAME       Apply a style preset.
-  -c, --colors LIST       Gradient of hex colors or preset name.             Default: '$DEFAULT__COLORS'
+  -c, --colors LIST       Gradient of hex rgb-colors or preset name.         Default: '$DEFAULT__COLORS'
   -b, --bar NAME          Characters used to fill the bar or preset name.    Default: '$DEFAULT__BAR'
   -E, --empty-str STR     Pattern used to pad empty space in the bar.        Default: '$DEFAULT__EMPTY_STR'
   -s, --bar-start STR     String shown before the bar.                       Default: '$DEFAULT__BAR_START'
@@ -519,8 +534,12 @@ COLOR_PRESET_NAMES=(
   'none'
 
   # Simple
-  'red'  'yellow' 'green'
-  'cyan' 'blue'   'magenta'
+  'red'         'yellow'       'green'
+  'cyan'        'blue'         'magenta'
+  'white'       'black'
+  'light-red'   'light-yellow' 'light-green'
+  'light-cyan'  'light-blue'   'light-magenta'
+  'light-white' 'light-black'
 
   # Gradients
   'cool'   'galaxy' 'frost'  'ocean'
@@ -531,18 +550,29 @@ function resolve_colors {
   local colors="$1"
   local parsed
 
-  if [[ "$colors" =~ ^(#?[a-fA-F0-9]{6}( *[;, ] *|$))*$ ]]; then
+  if [[ "$colors" =~ ^(([a-fA-F0-9]|#?[a-fA-F0-9]{6})( *[;, ] *|$))*$ ]]; then
     parsed="${colors//[,;#]/ }"
   else
     case "$colors" in
       'none') parsed='' ;;
 
-      'red')     parsed='FF0000' ;;
-      'yellow')  parsed='FFFF00' ;;
-      'green')   parsed='00FF00' ;;
-      'cyan')    parsed='00FFFF' ;;
-      'blue')    parsed='0000FF' ;;
-      'magenta') parsed='FF00FF' ;;
+      'black')   parsed='0' ;;
+      'red')     parsed='1' ;;
+      'green')   parsed='2' ;;
+      'yellow')  parsed='3' ;;
+      'blue')    parsed='4' ;;
+      'magenta') parsed='5' ;;
+      'cyan')    parsed='6' ;;
+      'white')   parsed='7' ;;
+
+      'light-black')   parsed='8' ;;
+      'light-red')     parsed='9' ;;
+      'light-green')   parsed='A' ;;
+      'light-yellow')  parsed='B' ;;
+      'light-blue')    parsed='C' ;;
+      'light-magenta') parsed='D' ;;
+      'light-cyan')    parsed='E' ;;
+      'light-white')   parsed='F' ;;
 
       'cool')   parsed='60C0C0 C080D8'                             ;;
       'galaxy') parsed='226088 4B2BA2 FF44FF'                      ;;
@@ -559,7 +589,7 @@ function resolve_colors {
       *)
         {
           echo "Invalid colors: '$colors'"
-          echo "Use a list of hex-colors, e.g. '#60C0C0, #C080D8'"
+          echo "Use a list of hex-rgb-colors, e.g. '#60C0C0, #C080D8'"
           echo "Alternatively, use one of these predefined gradients:"
           for name in "${COLOR_PRESET_NAMES[@]}"; do
             echo "- '$name'"
