@@ -120,7 +120,7 @@ This snippet will print 3 bars at once:
 | Option             | Shorthand  | Description                                                       | Default     |
 |--------------------|------------|-------------------------------------------------------------------|-------------|
 | `--preset NAME`    | `-p`       | Applay a style preset.                                            | --          |
-| `--colors LIST`    | `-c`       | Gradient of hex colors or preset name.                            | `'none'`    |
+| `--colors LIST`    | `-c`       | Gradient of hex rgb colors or preset name.                        | `'none'`    |
 | `--bar CHARS`      | `-b`       | Characters used to fill the bar or preset name.                   | `'minimal'` |
 | `--empty-str STR`  | `-E`       | Pattern used to pad empty space in the bar.                       | `' '`       |
 | `--bar-start STR`  | `-s`       | String shown before the bar.                                      | `'['`       |

@@ -76,7 +76,8 @@ function pb_get-color {
 
   local c0; local c1
   local r; local g; local b
-  if [ "$lerp_val" -eq 0 ]; then
+  if [ "$lerp_val" -eq 0 ] \
+  || [[ "${GRADIENT["$j"]}" =~ ^[a-FA-F0-9]$ ]]; then
     c0="${GRADIENT["$i"]}"
     r="$((16#${c0:0:2}))"
     g="$((16#${c0:2:2}))"
@@ -436,7 +437,7 @@ Arguments:
 
 Options:
   -p, --preset NAME       Apply a style preset.
-  -c, --colors LIST       Gradient of hex rgb-colors or preset name.         Default: '$DEFAULT__COLORS'
+  -c, --colors LIST       Gradient of hex rgb colors or preset name.         Default: '$DEFAULT__COLORS'
   -b, --bar NAME          Characters used to fill the bar or preset name.    Default: '$DEFAULT__BAR'
   -E, --empty-str STR     Pattern used to pad empty space in the bar.        Default: '$DEFAULT__EMPTY_STR'
   -s, --bar-start STR     String shown before the bar.                       Default: '$DEFAULT__BAR_START'
@@ -589,7 +590,8 @@ function resolve_colors {
       *)
         {
           echo "Invalid colors: '$colors'"
-          echo "Use a list of hex-rgb-colors, e.g. '#60C0C0, #C080D8'"
+          echo "Use a list of hex rgb colors, e.g. '#60C0C0, #C080D8'"
+          echo "4-bit colors are supported by using single hex digits, e.g '1, A, C'"
           echo "Alternatively, use one of these predefined gradients:"
           for name in "${COLOR_PRESET_NAMES[@]}"; do
             echo "- '$name'"
