@@ -437,7 +437,7 @@ Arguments:
 
 Options:
   -p, --preset NAME       Apply a style preset.
-  -c, --colors LIST       Gradient of hex rgb colors or preset name.         Default: '$DEFAULT__COLORS'
+  -c, --colors LIST       Gradient of rgb or 4-bit colors or preset name.    Default: '$DEFAULT__COLORS'
   -b, --bar NAME          Characters used to fill the bar or preset name.    Default: '$DEFAULT__BAR'
   -E, --empty-str STR     Pattern used to pad empty space in the bar.        Default: '$DEFAULT__EMPTY_STR'
   -s, --bar-start STR     String shown before the bar.                       Default: '$DEFAULT__BAR_START'
@@ -462,7 +462,7 @@ function print_long_help {
 Examples:
   $CALLNAME -p rainbow 50
   $CALLNAME --colors '#FF0000;#00FF00;#0000FF' 75
-  $CALLNAME --bar '.*|' --width 40 --demo
+  $CALLNAME --bar '.*|' --colors '1,2,4,F' --width 40 --demo
   $CALLNAME --demo -p bare -c matrix -b 0123456789 -W 10
   $CALLNAME --demo -b 'CCCCccccccccCCCC ' -E ' o ' -c yellow -w 25 2500
   $CALLNAME --show-off -w 50
