@@ -726,7 +726,7 @@ while [[ $# -gt 0 ]]; do
     '-p'|'--preset')     assert_arg "$1" "$2"; resolve_preset "$2"; shift 2 ;;
     '-c'|'--colors')     assert_arg "$1" "$2"; resolve_colors "$2"; shift 2 ;;
     '-b'|'--bar')        assert_arg "$1" "$2"; resolve_bar "$2";    shift 2 ;;
-    '-E'|'--empty_str')  assert_arg "$1" "$2"; EMPTY_STR="$2";      shift 2 ;;
+    '-E'|'--empty-str')  assert_arg "$1" "$2"; EMPTY_STR="$2";      shift 2 ;;
     '-s'|'--bar-start')  assert_arg "$1" "$2"; BAR_START="$2";      shift 2 ;;
     '-e'|'--bar-end')    assert_arg "$1" "$2"; BAR_END="$2";        shift 2 ;;
     '-f'|'--status-fmt') assert_arg "$1" "$2"; STATUS_FMT="$2";     shift 2 ;;
